@@ -1,0 +1,19 @@
+{
+  "name": "elliemae-webhook-processor",
+  "version": "1.0.0",
+  "description": "Standalone Azure Function App — Ellie Mae milestone webhook queue processor",
+  "scripts": {
+    "start": "func start",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.0.0",
+    "@azure/storage-queue": "^12.18.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

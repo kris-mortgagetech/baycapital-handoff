@@ -1,0 +1,90 @@
+name: Deploy Webhook Processor Function App
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'processor/**'
+  workflow_dispatch:
+
+env:
+  FUNCTION_APP_NAME: elliemae-webhook-processor
+  RESOURCE_GROUP: baycapital
+  STORAGE_ACCOUNT: queuebaycapital
+  LOCATION: westus2
+  NODE_VERSION: '22'
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    name: Build and Deploy Processor
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Create Function App if it does not exist
+        run: |
+          EXISTING=$(az functionapp show \
+            --name ${{ env.FUNCTION_APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --query name -o tsv 2>/dev/null || echo "")
+
+          if [ -z "$EXISTING" ]; then
+            echo "Function App not found — creating..."
+
+            az functionapp create \
+              --name ${{ env.FUNCTION_APP_NAME }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --storage-account ${{ env.STORAGE_ACCOUNT }} \
+              --consumption-plan-location ${{ env.LOCATION }} \
+              --runtime node \
+              --runtime-version ${{ env.NODE_VERSION }} \
+              --os-type linux \
+              --functions-version 4
+
+            echo "Function App created."
+          else
+            echo "Function App '$EXISTING' already exists — skipping creation."
+          fi
+
+      - name: Set app settings
+        run: |
+          az functionapp config appsettings set \
+            --name ${{ env.FUNCTION_APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --settings \
+              AZURE_STORAGE_CONNECTION_STRING="${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}" \
+              WEBHOOK_QUEUE_NAME="elliemae-webhooks" \
+              ENCOMPASS_BASE_URL="https://api.elliemae.com" \
+              ENCOMPASS_USERNAME="${{ secrets.ENCOMPASS_USERNAME }}" \
+              ENCOMPASS_PASSWORD="${{ secrets.ENCOMPASS_PASSWORD }}" \
+              ENCOMPASS_CLIENT_ID="${{ secrets.ENCOMPASS_CLIENT_ID }}" \
+              ENCOMPASS_CLIENT_SECRET="${{ secrets.ENCOMPASS_CLIENT_SECRET }}" \
+              ENCOMPASS_INSTANCE_ID="${{ secrets.ENCOMPASS_INSTANCE_ID }}" \
+              GHL_BASE_URL="https://services.leadconnectorhq.com" \
+              TRACE_RETAIN_DAYS="30"
+
+      - name: Install dependencies
+        run: |
+          cd processor
+          npm install --production
+
+      - name: Install Azure Functions Core Tools
+        run: npm install -g azure-functions-core-tools@4 --unsafe-perm true
+
+      - name: Deploy via Azure Functions Core Tools
+        run: |
+          cd processor
+          func azure functionapp publish ${{ env.FUNCTION_APP_NAME }} --node

@@ -1,0 +1,1997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Webhook Monitor — Ellie Mae Queue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:         #0b0f14;
+    --surface:    #111820;
+    --surface2:   #1a2230;
+    --border:     #1e2d40;
+    --accent:     #00c2ff;
+    --accent2:    #00ff9d;
+    --warn:       #ffb547;
+    --danger:     #ff4d6a;
+    --text:       #e2eaf4;
+    --muted:      #5a7a9a;
+    --mono:       'JetBrains Mono', monospace;
+    --sans:       'Syne', sans-serif;
+    --radius:     6px;
+    --glow:       0 0 20px rgba(0,194,255,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+  }
+
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    font-size: 0.8rem;
+    font-family: var(--mono);
+    color: var(--muted);
+  }
+
+  .queue-depth {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text);
+    transition: border-color 0.2s;
+  }
+
+  .queue-depth .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent2);
+    box-shadow: 0 0 6px var(--accent2);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ── Controls bar ── */
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-wrap: wrap;
+  }
+
+  .controls-left { display: flex; align-items: center; gap: 10px; flex: 1; }
+  .controls-right { display: flex; align-items: center; gap: 10px; }
+
+  label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  select, input[type="number"] {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 12px;
+    border-radius: var(--radius);
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  select:focus, input:focus { border-color: var(--accent); }
+
+  .sep { width: 1px; height: 24px; background: var(--border); }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+  .btn-primary:hover { filter: brightness(1.15); box-shadow: var(--glow); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid rgba(255,77,106,0.3);
+    padding: 5px 12px;
+    font-size: 0.75rem;
+  }
+  .btn-danger:hover { background: rgba(255,77,106,0.1); border-color: var(--danger); }
+
+  .btn-keep {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    font-size: 0.75rem;
+  }
+  .btn-keep:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── Auto-refresh toggle ── */
+  .refresh-toggle {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 0.78rem; color: var(--muted);
+    cursor: pointer; user-select: none;
+  }
+
+  .toggle-switch {
+    width: 32px; height: 18px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .toggle-switch.on { background: var(--accent); border-color: var(--accent); }
+
+  .toggle-knob {
+    position: absolute;
+    width: 12px; height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    top: 2px; left: 2px;
+    transition: transform 0.2s;
+  }
+
+  .toggle-switch.on .toggle-knob { transform: translateX(14px); }
+
+  /* ── Status bar ── */
+  #status-bar {
+    padding: 6px 32px;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    min-height: 28px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.2s;
+  }
+
+  #status-bar.success { color: var(--accent2); }
+  #status-bar.error   { color: var(--danger); }
+  #status-bar.loading { color: var(--accent); }
+
+  /* ── Main content ── */
+  main {
+    flex: 1;
+    padding: 24px 32px;
+    overflow: auto;
+  }
+
+  /* ── Message grid ── */
+  #messages-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 280px;
+    color: var(--muted);
+    font-family: var(--mono);
+    gap: 12px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+  }
+
+  .empty-state .icon { font-size: 2.5rem; opacity: 0.4; }
+  .empty-state p { font-size: 0.85rem; }
+
+  /* ── Message card ── */
+  .message-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    animation: slideIn 0.2s ease;
+    transition: border-color 0.15s;
+  }
+
+  .message-card:hover { border-color: #2a3f5a; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .card-header:hover { background: #1e2d3e; }
+
+  .event-badge {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+  }
+
+  /* milestone badge colors — 5 supported milestones */
+  .badge-application-completed { background: rgba(0,194,255,0.12); color: var(--accent);  border: 1px solid rgba(0,194,255,0.25); }
+  .badge-trid-sent              { background: rgba(255,181,71,0.12); color: var(--warn);   border: 1px solid rgba(255,181,71,0.25); }
+  .badge-uw-submitted           { background: rgba(199,146,234,0.12); color: #c792ea;      border: 1px solid rgba(199,146,234,0.25); }
+  .badge-ctc                    { background: rgba(0,255,157,0.12); color: var(--accent2); border: 1px solid rgba(0,255,157,0.25); }
+  .badge-funded                 { background: rgba(0,255,157,0.2);  color: #00ff9d;        border: 1px solid rgba(0,255,157,0.4); box-shadow: 0 0 8px rgba(0,255,157,0.15); }
+  .badge-unknown                { background: rgba(90,122,154,0.15); color: var(--muted);  border: 1px solid var(--border); }
+
+  .card-meta {
+    flex: 1;
+    display: flex;
+    gap: 20px;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+
+  .card-meta span { display: flex; align-items: center; gap: 4px; }
+  .card-meta .val { color: var(--text); }
+
+  .dequeue-count {
+    padding: 2px 7px;
+    background: rgba(255,77,106,0.12);
+    color: var(--danger);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-family: var(--mono);
+  }
+
+  .card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .chevron {
+    color: var(--muted);
+    font-size: 0.75rem;
+    transition: transform 0.2s;
+    margin-left: 4px;
+  }
+
+  .chevron.open { transform: rotate(90deg); }
+
+  /* ── Card body / payload viewer ── */
+  .card-body {
+    display: none;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .card-body.open { display: block; }
+
+  .payload-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+
+  @media (max-width: 700px) { .payload-section { grid-template-columns: 1fr; } }
+
+  .field-group { display: flex; flex-direction: column; gap: 4px; }
+
+  .field-label {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .field-value {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--text);
+    word-break: break-all;
+  }
+
+  .json-block {
+    background: #080d12;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    max-height: 360px;
+    white-space: pre;
+    color: #a8c8e8;
+  }
+
+  /* JSON syntax colors */
+  .json-key   { color: var(--accent); }
+  .json-str   { color: var(--accent2); }
+  .json-num   { color: var(--warn); }
+  .json-bool  { color: #c792ea; }
+  .json-null  { color: var(--muted); }
+
+  /* ── Footer ── */
+  footer {
+    padding: 12px 32px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* ── Spinner ── */
+  .spinner {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border: 2px solid rgba(0,194,255,0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .hidden { display: none !important; }
+
+  /* ── Dead Letter tab ── */
+  .dl-card {
+    background: var(--surface);
+    border: 1px solid rgba(220,50,50,0.3);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .dl-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: rgba(220,50,50,0.07);
+    border-bottom: 1px solid rgba(220,50,50,0.2);
+  }
+  .dl-dequeue-badge {
+    background: var(--danger);
+    color: #fff;
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .dl-card-body { padding: 14px 16px; }
+  .dl-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .btn-dl-discard { background: var(--danger); color: #fff; border: none; padding: 7px 14px; border-radius: var(--radius); font-family: var(--mono); font-size: 0.78rem; cursor: pointer; }
+  .btn-dl-discard:hover { opacity: 0.85; }
+  .btn-dl-requeue { background: var(--accent2); color: #fff; border: none; padding: 7px 14px; border-radius: var(--radius); font-family: var(--mono); font-size: 0.78rem; cursor: pointer; }
+  .btn-dl-requeue:hover { opacity: 0.85; }
+  .btn-dl-patch { background: var(--surface2); color: var(--text); border: 1px solid var(--border); padding: 7px 14px; border-radius: var(--radius); font-family: var(--mono); font-size: 0.78rem; cursor: pointer; }
+  .dl-patch-area { display: none; margin-top: 10px; }
+  .dl-patch-area textarea { width: 100%; min-height: 120px; background: #080d12; color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); font-family: var(--mono); font-size: 0.78rem; padding: 8px; resize: vertical; }
+  .dl-patch-area .patch-hint { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); margin-bottom: 6px; }
+  .dl-status { font-family: var(--mono); font-size: 0.75rem; margin-top: 8px; }
+
+
+  /* ── Loan fields panel ── */
+  .fields-panel {
+    margin-top: 14px;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+  }
+
+  .fields-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .fields-loading {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .field-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .field-group-block {
+    background: #080d12;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .field-group-title {
+    background: var(--surface2);
+    padding: 6px 12px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .field-rows {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0;
+  }
+
+  .field-row {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(30,45,64,0.4);
+    border-right: 1px solid rgba(30,45,64,0.4);
+  }
+
+  .field-row:last-child { border-bottom: none; }
+
+  .field-row-label {
+    font-family: var(--mono);
+    font-size: 0.67rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 2px;
+  }
+
+  .field-row-value {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--text);
+    word-break: break-word;
+  }
+
+  .field-row-id {
+    font-size: 0.62rem;
+    color: rgba(90,122,154,0.6);
+    margin-top: 1px;
+  }
+
+  .btn-fetch-fields {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid rgba(0,194,255,0.3);
+    padding: 5px 12px;
+    font-size: 0.75rem;
+    border-radius: var(--radius);
+    font-family: var(--mono);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-fetch-fields:hover { background: rgba(0,194,255,0.08); border-color: var(--accent); }
+  .btn-fetch-fields:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── LO panel ── */
+  .lo-panel {
+    margin-top: 14px;
+    border: 1px solid rgba(0,194,255,0.2);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: #080d12;
+  }
+
+  .lo-panel-header {
+    background: rgba(0,194,255,0.08);
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(0,194,255,0.15);
+  }
+
+  .lo-panel-title {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  .lo-tag {
+    background: rgba(0,194,255,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(0,194,255,0.25);
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+  }
+
+  .lo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0;
+  }
+
+  .lo-field {
+    padding: 8px 14px;
+    border-bottom: 1px solid rgba(30,45,64,0.4);
+    border-right: 1px solid rgba(30,45,64,0.4);
+  }
+
+  .lo-field-label {
+    font-family: var(--mono);
+    font-size: 0.67rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 2px;
+  }
+
+  .lo-field-value {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--text);
+  }
+
+  .lo-personas {
+    padding: 8px 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    border-top: 1px solid rgba(30,45,64,0.4);
+  }
+
+  .lo-persona-tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+  }
+
+
+  /* ── Trace enhancements ── */
+  .trace-detail-row td {
+    padding: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .trace-detail-inner {
+    padding: 16px 16px 16px 32px;
+    background: #080d12;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 24px;
+  }
+
+  @media (max-width: 700px) { .trace-detail-inner { grid-template-columns: 1fr; } }
+
+  .trace-detail-inner .field-group { display: flex; flex-direction: column; gap: 3px; }
+
+  .trace-raw-section {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .trace-raw-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .copy-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--accent2); color: var(--accent2); }
+
+  table.trace-table tr.active-row td { background: var(--surface2); }
+
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    padding: 0 32px;
+  }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    margin-bottom: -1px;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Trace table ── */
+  .trace-controls {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-wrap: wrap;
+  }
+
+  .trace-table-wrap {
+    padding: 24px 32px;
+    overflow-x: auto;
+  }
+
+  table.trace-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+
+  table.trace-table th {
+    text-align: left;
+    padding: 8px 12px;
+    color: var(--muted);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  table.trace-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid rgba(30,45,64,0.5);
+    vertical-align: top;
+    color: var(--text);
+  }
+
+  table.trace-table tr:hover td { background: var(--surface2); }
+
+  .outcome-queued   { color: var(--accent2); }
+  .outcome-processed { color: #4ade80; }
+  .outcome-received  { color: var(--muted); }
+  .outcome-skipped  { color: var(--muted); }
+  .outcome-rejected { color: var(--danger); }
+  .outcome-error    { color: var(--warn); }
+
+  .shape-badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .raw-toggle {
+    color: var(--accent);
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 0.72rem;
+    background: none;
+    border: none;
+    font-family: var(--mono);
+  }
+
+  .raw-row td {
+    padding: 0 12px 12px;
+  }
+
+  .raw-row .json-block {
+    max-height: 200px;
+    font-size: 0.72rem;
+  }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    WEBHOOK MONITOR
+  </div>
+  <div class="header-meta">
+    <div class="queue-depth">
+      <div class="dot"></div>
+      Queue: <span id="queue-depth-val">—</span>
+    </div>
+    <span>elliemae-webhooks</span>
+  </div>
+</header>
+
+<!-- ── Tabs ── -->
+<div class="tabs">
+  <button class="tab-btn active" data-tab="queue">Queue</button>
+  <button class="tab-btn" data-tab="trace">Trace Log</button>
+    <button class="tab-btn" data-tab="deadletter">Dead Letter</button>
+</div>
+
+<!-- ── Queue tab ── -->
+<div id="tab-queue" class="tab-panel active">
+  <div class="controls">
+    <div class="controls-left">
+      <label>Mode</label>
+      <select id="mode-select">
+        <option value="peek">Peek (non-destructive)</option>
+        <option value="dequeue">Dequeue (lock for processing)</option>
+      </select>
+      <div class="sep"></div>
+      <label>Count</label>
+      <input type="number" id="count-input" value="10" min="1" max="32" style="width:70px">
+      <div class="sep"></div>
+      <label>Visibility</label>
+      <input type="number" id="visibility-input" value="300" min="30" max="86400" style="width:80px">
+      <label>sec</label>
+    </div>
+    <div class="controls-right">
+      <div class="refresh-toggle" id="auto-refresh-toggle">
+        <div class="toggle-switch" id="toggle-sw"><div class="toggle-knob"></div></div>
+        Auto-refresh
+      </div>
+      <select id="interval-select" style="width:80px">
+        <option value="5000">5s</option>
+        <option value="10000" selected>10s</option>
+        <option value="30000">30s</option>
+      </select>
+      <button class="btn btn-primary" id="refresh-btn">
+        <span>↻</span> Refresh
+      </button>
+      <button class="btn btn-ghost" id="clear-btn">Clear</button>
+    </div>
+  </div>
+
+  <div id="status-bar">Ready — click Refresh or enable auto-refresh</div>
+
+  <main>
+    <div id="messages-container">
+      <div class="empty-state">
+        <div class="icon">📭</div>
+        <p>No messages loaded. Click <strong>Refresh</strong> to fetch from queue.</p>
+      </div>
+    </div>
+  
+  </div><!-- end messages-container -->
+</main>
+</div><!-- end tab-queue -->
+
+<!-- ── Dead Letter tab ── -->
+<div id="tab-deadletter" class="tab-panel">
+
+  <!-- Controls row 1: filters + refresh -->
+  <div class="trace-controls">
+    <label>Loan GUID</label>
+    <input type="text" id="dl-filter-loan" placeholder="filter by loan…" style="width:260px;font-family:var(--mono);font-size:0.78rem">
+    <div class="sep"></div>
+    <label>Milestone</label>
+    <input type="text" id="dl-filter-milestone" placeholder="filter by milestone…" style="width:160px;font-family:var(--mono);font-size:0.78rem">
+    <div class="sep"></div>
+    <button class="btn btn-primary" id="dl-load-btn"><span>↻</span> Refresh</button>
+    <div class="refresh-toggle" id="dl-auto-toggle" style="margin-left:4px">
+      <div class="toggle-switch" id="dl-toggle-sw"><div class="toggle-knob"></div></div>
+      Auto
+    </div>
+    <select id="dl-interval" style="width:70px">
+      <option value="30000" selected>30s</option>
+      <option value="60000">60s</option>
+    </select>
+    <span id="dl-count" style="font-family:var(--mono);font-size:0.78rem;color:var(--muted);margin-left:8px"></span>
+  </div>
+
+  <!-- Controls row 2: bulk actions -->
+  <div class="trace-controls" style="background:#0d1520;border-top:none;gap:10px">
+    <label style="color:var(--danger)">Bulk:</label>
+    <button class="btn btn-danger" id="dl-discard-selected-btn" style="padding:7px 14px">🗑 Discard Selected</button>
+    <button class="btn btn-primary" id="dl-requeue-selected-btn" style="padding:7px 14px">↩ Requeue Selected</button>
+    <span id="dl-selected-count" style="font-family:var(--mono);font-size:0.75rem;color:var(--muted)"></span>
+    <span id="dl-status" style="font-family:var(--mono);font-size:0.75rem;color:var(--muted);margin-left:8px"></span>
+  </div>
+
+  <!-- Stats bar -->
+  <div id="dl-stats" style="display:none;padding:8px 32px;border-bottom:1px solid var(--border);background:var(--surface);font-family:var(--mono);font-size:0.78rem;display:flex;gap:24px">
+    <span>Total: <strong id="dl-stat-total" style="color:var(--text)">0</strong></span>
+    <span>Queue depth: <strong id="dl-stat-depth" style="color:var(--danger)">0</strong></span>
+    <span style="margin-left:auto;color:var(--muted)" id="dl-last-loaded"></span>
+  </div>
+
+  <!-- Message list -->
+  <div id="dl-container">
+    <div class="empty-state">
+      <div class="icon">☠️</div>
+      <p>Click <strong>Refresh</strong> to check the poison queue.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── Trace tab ── -->
+<div id="tab-trace" class="tab-panel">
+
+  <!-- Controls row 1: Query filters -->
+  <div class="trace-controls">
+    <label>From</label>
+    <input type="date" id="trace-date-from" style="width:145px">
+    <label>To</label>
+    <input type="date" id="trace-date-to" style="width:145px">
+    <div class="sep"></div>
+    <label>Outcome</label>
+    <select id="trace-outcome">
+      <option value="">All</option>
+      <option value="received">Received</option>
+      <option value="queued">Queued (receiver)</option>
+      <option value="processed">Processed (GHL)</option>
+      <option value="rejected">Rejected</option>
+      <option value="error">Error</option>
+    </select>
+    <div class="sep"></div>
+    <label>Loan GUID</label>
+    <input type="text" id="trace-loan" placeholder="filter…" style="width:180px;font-family:var(--mono);font-size:0.8rem">
+    <div class="sep"></div>
+    <label>Top</label>
+    <input type="number" id="trace-top" value="100" min="1" max="500" style="width:70px">
+    <button class="btn btn-primary" id="trace-load-btn"><span>↻</span> Load</button>
+    <div class="refresh-toggle" id="trace-auto-toggle" style="margin-left:4px">
+      <div class="toggle-switch" id="trace-toggle-sw"><div class="toggle-knob"></div></div>
+      Auto
+    </div>
+    <select id="trace-interval" style="width:70px">
+      <option value="10000">10s</option>
+      <option value="30000" selected>30s</option>
+      <option value="60000">60s</option>
+    </select>
+  </div>
+
+  <!-- Controls row 2: Bulk delete -->
+  <div class="trace-controls" style="background:#0d1520;border-top:none;gap:10px;flex-wrap:wrap">
+    <label style="color:var(--danger)">Bulk Delete:</label>
+    <input type="text" id="delete-loan-guid" placeholder="Loan GUID (optional)" style="width:260px;font-family:var(--mono);font-size:0.78rem">
+    <input type="text" id="delete-milestone" placeholder="Milestone (optional)" style="width:180px;font-family:var(--mono);font-size:0.78rem">
+    <button class="btn btn-danger" id="delete-range-btn" style="padding:7px 14px">🗑 Delete Date Range</button>
+    <button class="btn btn-danger" id="delete-selected-btn" style="padding:7px 14px">🗑 Delete Selected</button>
+    <span id="selected-count" style="font-family:var(--mono);font-size:0.75rem;color:var(--muted)"></span>
+    <span id="delete-status" style="font-family:var(--mono);font-size:0.75rem;color:var(--muted);margin-left:8px"></span>
+  </div>
+
+  <!-- Summary stats bar -->
+  <div id="trace-stats" style="display:none;padding:10px 32px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;gap:24px;font-family:var(--mono);font-size:0.78rem;flex-wrap:wrap">
+    <span>Total: <strong id="stat-total" style="color:var(--text)">0</strong></span>
+    <span>Queued: <strong id="stat-queued" style="color:var(--accent2)">0</strong></span>
+    <span>Skipped: <strong id="stat-skipped" style="color:var(--muted)">0</strong></span>
+    <span>Rejected: <strong id="stat-rejected" style="color:var(--danger)">0</strong></span>
+    <span>Error: <strong id="stat-error" style="color:var(--warn)">0</strong></span>
+    <span style="margin-left:auto;color:var(--muted)" id="trace-last-loaded"></span>
+  </div>
+
+  <!-- Table -->
+  <div class="trace-table-wrap">
+    <div id="trace-container">
+      <div class="empty-state">
+        <div class="icon">🔍</div>
+        <p>Click <strong>Load</strong> to fetch trace records.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>Azure Storage Queue • Ellie Mae Webhook Monitor</span>
+  <span id="last-fetched">Never fetched</span>
+</footer>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let autoRefreshTimer = null;
+let isAutoRefresh = false;
+let fetchedMessages = [];
+let traceAutoTimer  = null;
+let isTraceAuto     = false;
+let allTraceRecords = [];
+
+
+function startAutoRefresh() {
+  fetchMessages();
+  const interval = parseInt(document.getElementById('interval-select').value, 10);
+  autoRefreshTimer = setInterval(fetchMessages, interval);
+}
+
+function stopAutoRefresh() {
+  clearInterval(autoRefreshTimer);
+  autoRefreshTimer = null;
+}
+
+// ── Fetch messages ─────────────────────────────────────────────────────────
+async function fetchMessages() {
+  const mode       = document.getElementById('mode-select').value;
+  const count      = document.getElementById('count-input').value;
+  const visibility = document.getElementById('visibility-input').value;
+
+  setStatus('loading', '⏳ Fetching messages...');
+  document.getElementById('refresh-btn').disabled = true;
+
+  try {
+    const params = new URLSearchParams({
+      count,
+      dequeue: mode === 'dequeue' ? 'true' : 'false',
+      visibilityTimeout: visibility,
+    });
+
+    const res = await fetch(`/api/queue-messages?${params}`);
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`HTTP ${res.status}: ${errText}`);
+    }
+
+    const data = await res.json();
+
+    fetchedMessages = data.messages || [];
+    document.getElementById('queue-depth-val').textContent =
+      data.approximateCount != null ? data.approximateCount : '?';
+
+    renderMessages(fetchedMessages, mode === 'dequeue');
+
+    const now = new Date().toLocaleTimeString();
+    document.getElementById('last-fetched').textContent = `Last fetched: ${now}`;
+    setStatus('success', `✓ ${fetchedMessages.length} message(s) loaded (${mode} mode) — queue depth ≈ ${data.approximateCount ?? '?'}`);
+
+  } catch (err) {
+    setStatus('error', `✗ ${err.message}`);
+    console.error(err);
+  } finally {
+    document.getElementById('refresh-btn').disabled = false;
+  }
+}
+
+// ── Render message cards ───────────────────────────────────────────────────
+function renderMessages(messages, isDequeued) {
+  const container = document.getElementById('messages-container');
+
+  if (!messages.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">✅</div>
+        <p>Queue is empty — no pending webhook events.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = messages.map((msg, idx) => buildCard(msg, idx, isDequeued)).join('');
+}
+
+function buildCard(msg, idx, isDequeued) {
+  const body = msg.body || {};
+  const milestoneName = body.milestoneName || "Unknown";
+  const loanGuid      = body.loanGuid  || '—';
+  const receivedAt    = body.receivedAt ? new Date(body.receivedAt).toLocaleString() : '—';
+  const envelopeId    = body.id || msg.messageId;
+  const instanceId    = body.instanceId || '—';
+  const deqCount      = msg.dequeueCount || 0;
+  const badgeClass    = getMilestoneBadgeClass(milestoneName);
+
+  // Pull fields from envelope (Shape B/C) — these are top-level envelope properties
+  const userId      = body.userId
+                   || body.payload?.meta?.userId
+                   || '—';
+  const eventTime   = body.eventTime
+                   ? new Date(body.eventTime).toLocaleString()
+                   : (body.payload?.eventTime ? new Date(body.payload.eventTime).toLocaleString() : '—');
+  const milestoneId = body.milestoneId
+                   || body.payload?.meta?.payload?.event?.finishMilestones?.[0]?.id
+                   || '—';
+
+  const canDelete = isDequeued && msg.popReceipt;
+  const deleteBtn = canDelete
+    ? `<button class="btn btn-danger" onclick="deleteMessage(event,'${msg.messageId}','${encodeURIComponent(msg.popReceipt)}',${idx})">🗑 Delete</button>`
+    : `<button class="btn btn-danger" title="Dequeue mode required to delete" disabled>🗑 Delete</button>`;
+
+  const keepBtn = canDelete
+    ? `<button class="btn btn-keep" onclick="keepMessage(event,${idx})">↩ Keep</button>`
+    : '';
+
+  return `
+  <div class="message-card" id="card-${idx}">
+    <div class="card-header" onclick="toggleCard(${idx})">
+      <span class="event-badge ${badgeClass}">${milestoneName}</span>
+      <div class="card-meta">
+        <span>Loan: <span class="val">${truncate(loanGuid, 36)}</span></span>
+        <span>Event time: <span class="val">${eventTime}</span></span>
+        <span>User: <span class="val">${userId}</span></span>
+        ${deqCount > 1 ? `<span class="dequeue-count">dequeued ×${deqCount}</span>` : ''}
+      </div>
+      <div class="card-actions" onclick="event.stopPropagation()">
+        ${deleteBtn}
+        ${keepBtn}
+      </div>
+      <span class="chevron" id="chev-${idx}">▶</span>
+    </div>
+    <div class="card-body" id="body-${idx}">
+      <div class="payload-section">
+        <div class="field-group">
+          <span class="field-label">Loan GUID</span>
+          <span class="field-value">${loanGuid}</span>
+        </div>
+        <div class="field-group">
+          <span class="field-label">Milestone</span>
+          <span class="field-value">${milestoneName}</span>
+        </div>
+        <div class="field-group">
+          <span class="field-label">Milestone ID</span>
+          <span class="field-value">${milestoneId}</span>
+        </div>
+        <div class="field-group">
+          <span class="field-label">Completed By (userId)</span>
+          <span class="field-value">${userId}</span>
+        </div>
+        <div class="field-group">
+          <span class="field-label">Event Time</span>
+          <span class="field-value">${eventTime}</span>
+        </div>
+        <div class="field-group">
+          <span class="field-label">Received At</span>
+          <span class="field-value">${receivedAt}</span>
+        </div>
+        <div class="field-group">
+          <span class="field-label">Instance ID</span>
+          <span class="field-value">${instanceId}</span>
+        </div>
+        <div class="field-group">
+          <span class="field-label">Message ID</span>
+          <span class="field-value">${msg.messageId}</span>
+        </div>
+        <div class="field-group">
+          <span class="field-label">Dequeue Count</span>
+          <span class="field-value" style="color:${deqCount > 3 ? 'var(--danger)' : 'inherit'}">${deqCount}</span>
+        </div>
+        <div class="field-group">
+          <span class="field-label">Pop Receipt</span>
+          <span class="field-value" style="color:var(--muted);font-size:0.7rem">${msg.popReceipt ? '✓ present' : '✗ peek only'}</span>
+        </div>
+      </div>
+      <div class="field-label" style="margin-bottom:8px">Raw Payload (events[])</div>
+      <div class="json-block">${syntaxHighlight(body.payload?.events || body.payload || body)}</div>
+
+      ${loanGuid && loanGuid !== '—' ? `
+      <div class="fields-panel" id="fields-panel-${idx}">
+        <div class="fields-panel-header">
+          <span class="field-label">Encompass Loan Fields</span>
+          <button class="btn-fetch-fields" id="fetch-btn-${idx}" onclick="fetchLoanFields(${idx}, '${loanGuid}')">
+            ⬇ Fetch Fields
+          </button>
+        </div>
+        <div id="fields-content-${idx}"></div>
+      </div>` : ''}
+    </div>
+  </div>`;
+}
+
+// ── Expand / collapse card ─────────────────────────────────────────────────
+function toggleCard(idx) {
+  const bodyEl = document.getElementById(`body-${idx}`);
+  const chevEl = document.getElementById(`chev-${idx}`);
+  bodyEl.classList.toggle('open');
+  chevEl.classList.toggle('open');
+}
+
+// ── Delete message ─────────────────────────────────────────────────────────
+async function deleteMessage(event, messageId, encodedPopReceipt, idx) {
+  event.stopPropagation();
+  if (!confirm('Delete this message from the queue?')) return;
+
+  setStatus('loading', `⏳ Deleting ${messageId}...`);
+
+  try {
+    const res = await fetch(`/api/queue-messages/${messageId}?popReceipt=${encodedPopReceipt}`, {
+      method: 'DELETE',
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`HTTP ${res.status}: ${errText}`);
+    }
+
+    // Animate out
+    const card = document.getElementById(`card-${idx}`);
+    card.style.transition = 'opacity 0.25s, transform 0.25s';
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(16px)';
+    setTimeout(() => {
+      card.remove();
+      setStatus('success', `✓ Message ${messageId} deleted`);
+
+      if (!document.querySelector('.message-card')) {
+        document.getElementById('messages-container').innerHTML = `
+          <div class="empty-state"><div class="icon">✅</div><p>All messages deleted.</p></div>`;
+      }
+    }, 250);
+
+  } catch (err) {
+    setStatus('error', `✗ Delete failed: ${err.message}`);
+  }
+}
+
+// ── Keep message (make visible again immediately) ──────────────────────────
+async function keepMessage(event, idx) {
+  event.stopPropagation();
+  // The message will auto-become visible again when the visibility timeout expires.
+  // For a true "put back now" we'd call updateMessage with visibilityTimeout=0,
+  // but that requires a separate endpoint. For now just mark in UI.
+  const card = document.getElementById(`card-${idx}`);
+  const btn = card.querySelector('.btn-keep');
+  btn.textContent = '✓ Will re-appear';
+  btn.disabled = true;
+  setStatus('success', `Message ${idx + 1} marked to keep — will reappear after visibility timeout expires`);
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function setStatus(type, msg) {
+  const bar = document.getElementById('status-bar');
+  bar.className = type;
+  bar.innerHTML = type === 'loading' ? `<div class="spinner"></div> ${msg}` : msg;
+}
+
+function clearDisplay() {
+  fetchedMessages = [];
+  document.getElementById('messages-container').innerHTML = `
+    <div class="empty-state">
+      <div class="icon">📭</div>
+      <p>Display cleared. Click <strong>Refresh</strong> to reload.</p>
+    </div>`;
+  setStatus('', 'Display cleared');
+}
+
+function getMilestoneBadgeClass(milestoneName) {
+  const map = {
+    "Started":                "badge-started",
+    "Pre-Qualification":      "badge-pre-qualification",
+    "Pre-Approval":           "badge-pre-approval",
+    "Submitted":              "badge-submitted",
+    "Resubmitted":            "badge-resubmitted",
+    "Processing":             "badge-processing",
+    "Suspended":              "badge-suspended",
+    "Approved":               "badge-approved",
+    "Approved with Conditions": "badge-approved-conditions",
+    "Denied":                 "badge-denied",
+    "Withdrawn":              "badge-withdrawn",
+    "Closing":                "badge-closing",
+    "Funded":                 "badge-funded",
+    "Completed":              "badge-completed",
+  };
+  return map[milestoneName] || "badge-unknown";
+}
+
+function truncate(str, len) {
+  if (!str) return '—';
+  return str.length > len ? str.slice(0, len) + '...' : str;
+}
+
+function syntaxHighlight(json) {
+  const str = typeof json === 'string' ? json : JSON.stringify(json, null, 2);
+  return str
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
+      let cls = 'json-num';
+      if (/^"/.test(match)) cls = /:$/.test(match) ? 'json-key' : 'json-str';
+      else if (/true|false/.test(match)) cls = 'json-bool';
+      else if (/null/.test(match)) cls = 'json-null';
+      return `<span class="${cls}">${match}</span>`;
+    });
+}
+
+// ── Tab switching ──────────────────────────────────────────────────────────
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tabName).classList.add('active');
+  document.querySelector('[data-tab="' + tabName + '"]').classList.add('active');
+  if (tabName === 'trace') fetchTrace();
+  if (tabName === 'deadletter') loadDeadLetters();
+}
+
+
+
+// ── Dead Letter tab ──────────────────────────────────────────────────────────
+
+let dlMessages       = [];
+let dlAutoTimer      = null;
+let dlAutoEnabled    = false;
+
+let dlInitialized = false;
+function initDeadLetter() {
+  if (dlInitialized) return;
+  dlInitialized = true;
+  document.getElementById('dl-load-btn').addEventListener('click', loadDeadLetters);
+  document.getElementById('dl-discard-selected-btn').addEventListener('click', dlDiscardSelected);
+  document.getElementById('dl-requeue-selected-btn').addEventListener('click', dlRequeueBulk);
+
+  // Auto-refresh toggle
+  document.getElementById('dl-auto-toggle').addEventListener('click', function() {
+    dlAutoEnabled = !dlAutoEnabled;
+    const sw = document.getElementById('dl-toggle-sw');
+    sw.classList.toggle('on', dlAutoEnabled);
+    if (dlAutoEnabled) {
+      const interval = parseInt(document.getElementById('dl-interval').value);
+      dlAutoTimer = setInterval(loadDeadLetters, interval);
+    } else {
+      clearInterval(dlAutoTimer);
+    }
+  });
+
+  document.getElementById('dl-interval').addEventListener('change', function() {
+    if (dlAutoEnabled) {
+      clearInterval(dlAutoTimer);
+      dlAutoTimer = setInterval(loadDeadLetters, parseInt(this.value));
+    }
+  });
+
+  // Bulk checkbox delegation
+  document.getElementById('dl-container').addEventListener('change', function(e) {
+    if (e.target.id === 'dl-select-all-cb') {
+      document.querySelectorAll('.dl-select-cb').forEach(cb => cb.checked = e.target.checked);
+    }
+    updateDlSelectedCount();
+  });
+}
+
+function updateDlSelectedCount() {
+  const n = document.querySelectorAll('.dl-select-cb:checked').length;
+  document.getElementById('dl-selected-count').textContent = n > 0 ? n + ' selected' : '';
+}
+
+function setDlStatus(msg, color) {
+  const el = document.getElementById('dl-status');
+  el.textContent = msg;
+  el.style.color = color || 'var(--muted)';
+}
+
+async function loadDeadLetters() {
+  const btn       = document.getElementById('dl-load-btn');
+  const container = document.getElementById('dl-container');
+  btn.disabled = true;
+  setDlStatus('Loading...', 'var(--muted)');
+
+  try {
+    const res = await fetch('/api/dead-letter');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    dlMessages = data.messages || [];
+
+    // Apply client-side filters
+    const loanFilter      = (document.getElementById('dl-filter-loan').value      || '').trim().toLowerCase();
+    const milestoneFilter = (document.getElementById('dl-filter-milestone').value || '').trim().toLowerCase();
+
+    const filtered = dlMessages.filter(m => {
+      if (loanFilter      && !(m.loanGuid      || '').toLowerCase().includes(loanFilter))      return false;
+      if (milestoneFilter && !(m.milestoneName || '').toLowerCase().includes(milestoneFilter)) return false;
+      return true;
+    });
+
+    // Stats
+    document.getElementById('dl-stat-total').textContent = filtered.length;
+    document.getElementById('dl-stat-depth').textContent = data.approximateCount || 0;
+    document.getElementById('dl-last-loaded').textContent = 'Loaded ' + new Date().toLocaleTimeString();
+    document.getElementById('dl-stats').style.display = 'flex';
+
+    if (!filtered.length) {
+      container.innerHTML = dlMessages.length
+        ? '<div class="empty-state"><div class="icon">🔍</div><p>No messages match the current filters.</p></div>'
+        : '<div class="empty-state"><div class="icon">✅</div><p>Poison queue is empty.</p></div>';
+      setDlStatus('', '');
+      btn.disabled = false;
+      return;
+    }
+
+    // Build table
+    const rows = filtered.map((m, i) => {
+      const time      = m.insertedOn ? new Date(m.insertedOn).toLocaleString() : '—';
+      const milestone = m.milestoneName || '—';
+      const loan      = truncate(m.loanGuid || '—', 36);
+      return '<tr id="dl-row-' + i + '">' +
+        '<td onclick="event.stopPropagation()" style="width:32px;text-align:center">' +
+          '<input type="checkbox" class="dl-select-cb" data-idx="' + i + '">' +
+        '</td>' +
+        '<td style="white-space:nowrap;font-size:0.75rem;cursor:pointer" onclick="toggleDlDetail(' + i + ')">' + time + '</td>' +
+        '<td><span class="dl-dequeue-badge">×' + (m.dequeueCount || 5) + '</span></td>' +
+        '<td style="font-family:var(--mono);font-size:0.82rem">' + milestone + '</td>' +
+        '<td style="font-family:var(--mono);font-size:0.72rem;color:var(--muted)">' + loan + '</td>' +
+        '<td style="white-space:nowrap">' +
+          '<button class="btn-dl-requeue" style="padding:4px 10px;font-size:0.72rem" onclick="dlRequeue(' + i + ')">↩ Requeue</button> ' +
+          '<button class="btn-dl-patch" style="padding:4px 10px;font-size:0.72rem" onclick="dlTogglePatch(' + i + ')">✏ Patch</button> ' +
+          '<button class="btn-dl-discard" style="padding:4px 10px;font-size:0.72rem" onclick="dlDiscard(' + i + ')">🗑</button>' +
+        '</td>' +
+      '</tr>' +
+      '<tr class="trace-detail-row" id="dl-detail-' + i + '" style="display:none">' +
+        '<td colspan="6">' + buildDlDetail(m, i) + '</td>' +
+      '</tr>';
+    }).join('');
+
+    container.innerHTML =
+      '<table class="trace-table"><thead><tr>' +
+        '<th><input type="checkbox" id="dl-select-all-cb"></th>' +
+        '<th>Inserted</th><th>Failures</th><th>Milestone</th><th>Loan GUID</th><th>Actions</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table>';
+
+    setDlStatus('', '');
+  } catch (err) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Error: ' + err.message + '</p></div>';
+    setDlStatus('✗ ' + err.message, 'var(--danger)');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function buildDlDetail(m, i) {
+  const envelope = m.envelope ? JSON.stringify(m.envelope, null, 2) : '{}';
+  return '<div class="trace-detail-inner">' +
+    '<div class="field-group"><span class="field-label">Message ID</span><span class="field-value" style="font-size:0.8rem">' + (m.messageId || '—') + '</span></div>' +
+    '<div class="field-group"><span class="field-label">Loan GUID</span><span class="field-value" style="font-size:0.8rem">' + (m.loanGuid || '—') + '</span></div>' +
+    '<div class="field-group"><span class="field-label">Milestone</span><span class="field-value" style="font-size:0.8rem">' + (m.milestoneName || '—') + '</span></div>' +
+    '<div class="field-group"><span class="field-label">Inserted</span><span class="field-value" style="font-size:0.8rem">' + (m.insertedOn ? new Date(m.insertedOn).toLocaleString() : '—') + '</span></div>' +
+    '<div class="field-group"><span class="field-label">Failures</span><span class="field-value" style="font-size:0.8rem;color:var(--danger)">' + (m.dequeueCount || 5) + '</span></div>' +
+    '<div class="trace-raw-section" style="margin-top:10px">' +
+      '<div class="trace-raw-header"><span class="field-label">Envelope Payload</span></div>' +
+      '<div class="json-block">' + syntaxHighlight(m.envelope || {}) + '</div>' +
+    '</div>' +
+    '<div class="dl-patch-area" id="dl-patch-' + i + '" style="margin-top:10px">' +
+      '<div class="patch-hint">Edit JSON to fix bad data, then Requeue with Patch:</div>' +
+      '<textarea id="dl-patch-text-' + i + '">' + envelope.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>' +
+      '<div style="margin-top:6px">' +
+        '<button class="btn-dl-requeue" onclick="dlRequeuePatch(' + i + ')">↩ Requeue with Patch</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function toggleDlDetail(i) {
+  const row = document.getElementById('dl-detail-' + i);
+  row.style.display = row.style.display === 'none' ? '' : 'none';
+}
+
+function dlTogglePatch(i) {
+  const area = document.getElementById('dl-patch-' + i);
+  if (area) area.style.display = area.style.display === 'none' || !area.style.display ? 'block' : 'none';
+  // Expand detail row if not open
+  const detail = document.getElementById('dl-detail-' + i);
+  if (detail) detail.style.display = '';
+}
+
+async function dlRequeue(i) {
+  const m = dlMessages[i];
+  if (!m || !confirm('Requeue this message for reprocessing?')) return;
+  setDlStatus('Requeueing...', 'var(--muted)');
+  try {
+    const res = await fetch('/api/dead-letter', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messageId: m.messageId, popReceipt: m.popReceipt }),
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'HTTP ' + res.status);
+    setDlStatus('✓ Requeued', 'var(--accent2)');
+    dlMessages.splice(i, 1);
+    loadDeadLetters();
+  } catch (err) { setDlStatus('✗ ' + err.message, 'var(--danger)'); }
+}
+
+async function dlRequeuePatch(i) {
+  const m = dlMessages[i];
+  if (!m) return;
+  const textarea = document.getElementById('dl-patch-text-' + i);
+  let patchedPayload;
+  try { patchedPayload = JSON.parse(textarea.value); }
+  catch { alert('Invalid JSON — fix before requeueing'); return; }
+  if (!confirm('Requeue with patched payload?')) return;
+  setDlStatus('Requeueing with patch...', 'var(--muted)');
+  try {
+    const res = await fetch('/api/dead-letter', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messageId: m.messageId, popReceipt: m.popReceipt, patchedPayload }),
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'HTTP ' + res.status);
+    setDlStatus('✓ Requeued with patch', 'var(--accent2)');
+    loadDeadLetters();
+  } catch (err) { setDlStatus('✗ ' + err.message, 'var(--danger)'); }
+}
+
+async function dlDiscard(i) {
+  const m = dlMessages[i];
+  if (!m || !confirm('Permanently discard this message?')) return;
+  setDlStatus('Discarding...', 'var(--muted)');
+  try {
+    const res = await fetch('/api/dead-letter/' + m.messageId + '?popReceipt=' + encodeURIComponent(m.popReceipt || ''), {
+      method: 'DELETE',
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    setDlStatus('✓ Discarded', 'var(--muted)');
+    loadDeadLetters();
+  } catch (err) { setDlStatus('✗ ' + err.message, 'var(--danger)'); }
+}
+
+async function dlDiscardSelected() {
+  const checked = [...document.querySelectorAll('.dl-select-cb:checked')];
+  if (!checked.length) { alert('Select at least one message'); return; }
+  if (!confirm('Permanently discard ' + checked.length + ' message(s)?')) return;
+  setDlStatus('Discarding ' + checked.length + '...', 'var(--muted)');
+  let done = 0, failed = 0;
+  for (const cb of checked) {
+    const m = dlMessages[parseInt(cb.dataset.idx)];
+    if (!m) continue;
+    try {
+      const res = await fetch('/api/dead-letter/' + m.messageId + '?popReceipt=' + encodeURIComponent(m.popReceipt || ''), { method: 'DELETE' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      done++;
+    } catch { failed++; }
+  }
+  setDlStatus('✓ Discarded ' + done + (failed ? ' | ✗ Failed ' + failed : ''), 'var(--accent2)');
+  loadDeadLetters();
+}
+
+async function dlRequeueBulk() {
+  const checked = [...document.querySelectorAll('.dl-select-cb:checked')];
+  if (!checked.length) { alert('Select at least one message'); return; }
+  if (!confirm('Requeue ' + checked.length + ' message(s)?')) return;
+  setDlStatus('Requeueing ' + checked.length + '...', 'var(--muted)');
+  let done = 0, failed = 0;
+  for (const cb of checked) {
+    const m = dlMessages[parseInt(cb.dataset.idx)];
+    if (!m) continue;
+    try {
+      const res = await fetch('/api/dead-letter', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId: m.messageId, popReceipt: m.popReceipt }),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      done++;
+    } catch { failed++; }
+  }
+  setDlStatus('✓ Requeued ' + done + (failed ? ' | ✗ Failed ' + failed : ''), 'var(--accent2)');
+  loadDeadLetters();
+}
+
+
+// ── Fetch trace records ────────────────────────────────────────────────────
+async function fetchTrace() {
+  const dateFrom = document.getElementById('trace-date-from').value;
+  const dateTo   = document.getElementById('trace-date-to').value;
+  const outcome  = document.getElementById('trace-outcome').value;
+  const top      = document.getElementById('trace-top').value;
+  const loadBtn  = document.getElementById('trace-load-btn');
+
+  loadBtn.disabled = true;
+
+  try {
+    const params = new URLSearchParams({ dateFrom, dateTo, top });
+    if (outcome) params.set('outcome', outcome);
+
+    const res = await fetch('/api/webhook-trace?' + params);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    allTraceRecords = data.records || [];
+    renderTrace(allTraceRecords);
+    updateStats(allTraceRecords);
+
+    const rangeLabel = dateFrom === dateTo ? dateFrom : dateFrom + ' → ' + dateTo;
+    document.getElementById('trace-last-loaded').textContent =
+      'Loaded ' + data.count + ' of ' + (data.totalFound || data.count) + ' — ' + rangeLabel + ' — ' + new Date().toLocaleTimeString();
+    document.getElementById('trace-stats').style.display = 'flex';
+
+  } catch (err) {
+    document.getElementById('trace-container').innerHTML =
+      '<div class="empty-state"><div class="icon">⚠️</div><p>Error: ' + err.message + '</p></div>';
+  } finally {
+    loadBtn.disabled = false;
+  }
+}
+
+// ── Bulk delete — date range ──────────────────────────────────────────────────
+async function deleteRange() {
+  const dateFrom    = document.getElementById('trace-date-from').value;
+  const dateTo      = document.getElementById('trace-date-to').value;
+  const loanGuid    = document.getElementById('delete-loan-guid').value.trim();
+  const milestone   = document.getElementById('delete-milestone').value.trim();
+  if (!dateFrom) { alert('Set a date range first'); return; }
+
+  const rangeLabel = dateFrom === dateTo ? dateFrom : dateFrom + ' to ' + dateTo;
+  let confirmMsg = 'Delete trace records from ' + rangeLabel;
+  if (loanGuid)  confirmMsg += ' | Loan: ' + loanGuid;
+  if (milestone) confirmMsg += ' | Milestone: ' + milestone;
+  if (!confirm(confirmMsg + '?')) return;
+
+  setDeleteStatus('Deleting...');
+  try {
+    const body = { dateFrom, dateTo };
+    if (loanGuid)  body.loanGuid      = loanGuid;
+    if (milestone) body.milestoneName = milestone;
+    const res = await fetch('/api/webhook-trace', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    setDeleteStatus('✓ Deleted ' + data.deleted + ' records');
+    // Remove matching records from local view
+    allTraceRecords = allTraceRecords.filter(r => {
+      if (loanGuid  && r.loanGuid      !== loanGuid)  return true;
+      if (milestone && r.milestoneName !== milestone) return true;
+      return false;
+    });
+    renderTrace(allTraceRecords);
+    updateStats(allTraceRecords);
+  } catch (err) {
+    setDeleteStatus('✗ ' + err.message);
+  }
+}
+
+// ── Bulk delete — selected rows ───────────────────────────────────────────────
+async function deleteSelected() {
+  const checked = [...document.querySelectorAll('.trace-select-cb:checked')];
+  if (!checked.length) { alert('Select at least one record'); return; }
+  if (!confirm('Delete ' + checked.length + ' selected record(s)?')) return;
+
+  const traceIds = checked.map(cb => cb.dataset.traceid);
+  setDeleteStatus('Deleting ' + traceIds.length + ' records...');
+
+  try {
+    const res = await fetch('/api/webhook-trace', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ traceIds }),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    setDeleteStatus('✓ Deleted ' + data.deleted + ' records');
+    // Remove deleted rows from local data and re-render
+    allTraceRecords = allTraceRecords.filter(r => !traceIds.includes(r.traceId));
+    renderTrace(allTraceRecords);
+    updateStats(allTraceRecords);
+    document.getElementById('selected-count').textContent = '';
+  } catch (err) {
+    setDeleteStatus('✗ ' + err.message);
+  }
+}
+
+function setDeleteStatus(msg) {
+  document.getElementById('delete-status').textContent = msg;
+}
+
+function updateSelectedCount() {
+  const n = document.querySelectorAll('.trace-select-cb:checked').length;
+  document.getElementById('selected-count').textContent = n > 0 ? n + ' selected' : '';
+}
+
+// ── Update summary stats ───────────────────────────────────────────────────
+function updateStats(records) {
+  const counts = { queued: 0, skipped: 0, rejected: 0, error: 0 };
+  records.forEach(r => { if (counts[r.outcome] !== undefined) counts[r.outcome]++; });
+  document.getElementById('stat-total').textContent    = records.length;
+  document.getElementById('stat-queued').textContent   = counts.queued;
+  document.getElementById('stat-skipped').textContent  = counts.skipped;
+  document.getElementById('stat-rejected').textContent = counts.rejected;
+  document.getElementById('stat-error').textContent    = counts.error;
+}
+
+// ── Render trace table ─────────────────────────────────────────────────────
+function renderTrace(records) {
+  const container  = document.getElementById('trace-container');
+  const loanFilter = document.getElementById('trace-loan').value.trim().toLowerCase();
+
+  // Client-side loan GUID filter
+  const filtered = loanFilter
+    ? records.filter(r => (r.loanGuid || '').toLowerCase().includes(loanFilter))
+    : records;
+
+  if (!filtered.length) {
+    container.innerHTML = loanFilter
+      ? '<div class="empty-state"><div class="icon">🔍</div><p>No records match loan GUID "' + loanFilter + '".</p></div>'
+      : '<div class="empty-state"><div class="icon">🔍</div><p>No trace records found for this date/filter.</p></div>';
+    return;
+  }
+
+  const rows = filtered.map((r, i) => {
+    const outcomeClass = 'outcome-' + (r.outcome || 'unknown');
+    const time         = r.receivedAt ? new Date(r.receivedAt).toLocaleString() : '—';
+    const milestone    = r.milestoneName || '<span style="color:var(--muted);font-style:italic">pending</span>';
+    const loan         = r.loanGuid || '—';
+    const shape        = r.shape ? '<span class="shape-badge">' + r.shape + '</span>' : '<span class="shape-badge" style="color:var(--muted)">?</span>';
+    const tid          = (r.traceId || '').replace(/'/g, '');
+
+    return '<tr id="trace-row-' + i + '">' +
+      '<td onclick="event.stopPropagation()" style="width:32px;text-align:center">' +
+        '<input type="checkbox" class="trace-select-cb" data-traceid="' + tid + '">' +
+      '</td>' +
+      '<td style="white-space:nowrap;font-size:0.75rem;cursor:pointer" onclick="toggleTraceDetail(' + i + ')">' + time + '</td>' +
+      '<td><span class="' + outcomeClass + '">' + (r.outcome || '—') + '</span></td>' +
+      '<td>' + shape + '</td>' +
+      '<td>' + milestone + '</td>' +
+      '<td style="font-family:var(--mono);font-size:0.72rem;color:var(--muted)">' + truncate(loan, 36) + '</td>' +
+      '<td style="color:var(--muted);font-size:0.72rem">' + truncate(r.outcomeReason || '', 50) + '</td>' +
+      '<td style="color:var(--muted);font-size:0.7rem">' + (r.httpStatus || '—') + '</td>' +
+      '</tr>' +
+      '<tr class="trace-detail-row" id="trace-detail-' + i + '" style="display:none">' +
+      '<td colspan="8">' + buildTraceDetail(r, i) + '</td>' +
+      '</tr>';
+  }).join('');
+
+  container.innerHTML =
+    '<table class="trace-table">' +
+    '<thead><tr>' +
+    '<th><input type="checkbox" id="select-all-cb"></th>' +
+    '<th>Received At</th><th>Outcome</th><th>Shape</th><th>Milestone</th>' +
+    '<th>Loan GUID</th><th>Reason</th><th>HTTP</th>' +
+    '</tr></thead>' +
+    '<tbody>' + rows + '</tbody>' +
+    '</table>';
+}
+
+// ── Build expanded detail panel for a trace row ────────────────────────────
+function buildTraceDetail(r, i) {
+  const rawPretty = (() => {
+    try { return JSON.stringify(JSON.parse(r.rawPayload), null, 2); }
+    catch { return r.rawPayload || ''; }
+  })();
+
+  return '<div class="trace-detail-inner">' +
+    field('Trace ID',      r.traceId     || '—') +
+    field('Event ID',      r.eventId     || '—') +
+    field('Loan GUID',     r.loanGuid    || '—') +
+    field('Instance ID',   r.instanceId  || '—') +
+    field('Shape',         r.shape       || '—') +
+    field('Milestone',     r.milestoneName || '(not in payload)') +
+    field('Outcome',       r.outcome     || '—') +
+    field('HTTP Status',   r.httpStatus  || '—') +
+    field('Outcome Reason', r.outcomeReason || '—') +
+    field('Received At',   r.receivedAt ? new Date(r.receivedAt).toLocaleString() : '—') +
+    '<div class="trace-raw-section">' +
+      '<div class="trace-raw-header">' +
+        '<span class="field-label">Raw Payload</span>' +
+        '<button class="copy-btn" id="copy-btn-' + i + '" onclick="copyRaw(event,' + i + ')">Copy</button>' +
+      '</div>' +
+      '<div class="json-block" id="raw-payload-' + i + '">' + syntaxHighlight(rawPretty) + '</div>' +
+    '</div>' +
+    '</div>';
+}
+
+function field(label, value) {
+  return '<div class="field-group">' +
+    '<span class="field-label">' + label + '</span>' +
+    '<span class="field-value" style="font-size:0.8rem">' + value + '</span>' +
+    '</div>';
+}
+
+// ── Toggle detail row ──────────────────────────────────────────────────────
+function toggleTraceDetail(idx) {
+  const detail = document.getElementById('trace-detail-' + idx);
+  const row    = document.getElementById('trace-row-' + idx);
+  const isOpen = detail.style.display !== 'none';
+  detail.style.display = isOpen ? 'none' : '';
+  row.classList.toggle('active-row', !isOpen);
+}
+
+// ── Copy raw payload ───────────────────────────────────────────────────────
+async function copyRaw(event, idx) {
+  event.stopPropagation();
+  const el  = document.getElementById('raw-payload-' + idx);
+  const btn = document.getElementById('copy-btn-' + idx);
+  try {
+    await navigator.clipboard.writeText(el.innerText);
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  } catch {
+    btn.textContent = 'Failed';
+  }
+}
+
+// ── Fetch Encompass loan fields for a queue message ────────────────────────
+async function fetchLoanFields(idx, loanGuid) {
+  const btn     = document.getElementById('fetch-btn-' + idx);
+  const content = document.getElementById('fields-content-' + idx);
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Fetching...';
+  content.innerHTML = '<div class="fields-loading"><div class="spinner"></div> Calling Encompass fieldReader...</div>';
+
+  try {
+    const res = await fetch('/api/loan-fields?loanGuid=' + encodeURIComponent(loanGuid));
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'HTTP ' + res.status }));
+      throw new Error(err.error || 'HTTP ' + res.status);
+    }
+
+    const data   = await res.json();
+    const groups = data.groups || [];
+
+    if (!groups.length) {
+      content.innerHTML = '<div class="fields-loading" style="color:var(--muted)">No field values returned</div>';
+      btn.textContent = '↻ Refresh Fields';
+      btn.disabled = false;
+      return;
+    }
+
+    // Skip "Loan Officer" group — rendered separately in LO panel below
+    const html = groups.filter(g => g.group !== 'Loan Officer').map(g => {
+      const rows = g.fields.map(f =>
+        '<div class="field-row">' +
+          '<span class="field-row-label">' + f.description + '</span>' +
+          '<span class="field-row-value">' + (f.value ?? '—') + '</span>' +
+          '<span class="field-row-id">Field ' + f.id + '</span>' +
+        '</div>'
+      ).join('');
+      return '<div class="field-group-block">' +
+        '<div class="field-group-title">' + g.group + '</div>' +
+        '<div class="field-rows">' + rows + '</div>' +
+        '</div>';
+    }).join('');
+
+    let loHtml = '';
+    if (data.loUser) {
+      loHtml = buildLoPanel(data.loUser);
+    } else if (data.loError) {
+      loHtml = '<div class="lo-panel" style="margin-top:14px"><div class="lo-panel-header"><span class="lo-panel-title">Loan Officer</span><span style="color:var(--danger);font-family:var(--mono);font-size:0.75rem;margin-left:8px">✗ ' + data.loError + '</span></div></div>';
+    } else if (data.raw && data.raw["LOID"]) {
+      loHtml = '<div class="lo-panel" style="margin-top:14px"><div class="lo-panel-header"><span class="lo-panel-title">Loan Officer</span><span style="color:var(--muted);font-family:var(--mono);font-size:0.75rem;margin-left:8px">LOID: ' + data.raw["LOID"] + ' — fetch returned null</span></div></div>';
+    }
+
+    content.innerHTML = '<div class="field-groups">' + html + '</div>' + loHtml;
+    btn.textContent = '↻ Refresh Fields';
+    btn.disabled = false;
+
+  } catch (err) {
+    content.innerHTML = '<div class="fields-loading" style="color:var(--danger)">✗ ' + err.message + '</div>';
+    btn.textContent = '↻ Retry';
+    btn.disabled = false;
+  }
+}
+
+// ── Build LO details panel ────────────────────────────────────────────────
+function buildLoPanel(lo) {
+  const fields = [
+    { label: 'Name',             value: lo.fullName },
+    { label: 'Email',            value: lo.email },
+    { label: 'Phone',            value: lo.phone },
+    { label: 'Cell',             value: lo.cellPhone },
+    { label: 'Job Title',        value: lo.jobTitle },
+    { label: 'Employee ID',      value: lo.employeeID },
+    { label: 'NMLS ID',          value: lo.nmlsOriginatorID },
+    { label: 'NMLS Expiration',  value: lo.nmlsExpirationDate },
+    { label: 'Working Folder',   value: lo.workingFolder },
+    { label: 'GHL Location ID',  value: lo.ghlLocationId },
+    { label: 'Last Login',       value: lo.lastLogin ? new Date(lo.lastLogin).toLocaleString() : '' },
+  ].filter(f => f.value);
+
+  const fieldRows = fields.map(f =>
+    '<div class="lo-field">' +
+      '<div class="lo-field-label">' + f.label + '</div>' +
+      '<div class="lo-field-value">' + f.value + '</div>' +
+    '</div>'
+  ).join('');
+
+  const personaTags = (lo.personas || []).map(p =>
+    '<span class="lo-persona-tag">' + p + '</span>'
+  ).join('');
+
+  return '<div class="lo-panel" style="margin-top:14px">' +
+    '<div class="lo-panel-header">' +
+      '<span class="lo-panel-title">Loan Officer</span>' +
+      '<span class="lo-tag">' + (lo.id || '') + '</span>' +
+    '</div>' +
+    '<div class="lo-grid">' + fieldRows + '</div>' +
+    (personaTags ? '<div class="lo-personas">' + personaTags + '</div>' : '') +
+  '</div>';
+}
+
+function tryParseJson(str) {
+  try { return JSON.parse(str); } catch { return str; }
+}
+
+function toggleSelectAll(cb) {
+  document.querySelectorAll('.trace-select-cb').forEach(function(el) {
+    el.checked = cb.checked;
+  });
+  updateSelectedCount();
+}
+
+
+// ── DOM Ready — wire up all event listeners ──────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+
+  // Set default trace date range to today
+  const todayStr = new Date().toISOString().substring(0, 10);
+  document.getElementById('trace-date-from').value = todayStr;
+  document.getElementById('trace-date-to').value   = todayStr;
+
+  // Tab buttons
+  document.querySelectorAll('[data-tab]').forEach(function(btn) {
+    btn.addEventListener('click', function() { switchTab(btn.dataset.tab); });
+  });
+
+  // Queue tab buttons
+  document.getElementById('refresh-btn').addEventListener('click', fetchMessages);
+  document.getElementById('clear-btn').addEventListener('click', clearDisplay);
+
+  // Queue auto-refresh toggle
+  document.getElementById('auto-refresh-toggle').addEventListener('click', function() {
+    isAutoRefresh = !isAutoRefresh;
+    document.getElementById('toggle-sw').classList.toggle('on', isAutoRefresh);
+    if (isAutoRefresh) { startAutoRefresh(); } else { stopAutoRefresh(); }
+  });
+  document.getElementById('interval-select').addEventListener('change', function() {
+    if (isAutoRefresh) { stopAutoRefresh(); startAutoRefresh(); }
+  });
+
+  // Trace tab buttons
+  document.getElementById('trace-load-btn').addEventListener('click', fetchTrace);
+
+  // Trace auto-refresh toggle
+  document.getElementById('trace-auto-toggle').addEventListener('click', function() {
+    isTraceAuto = !isTraceAuto;
+    document.getElementById('trace-toggle-sw').classList.toggle('on', isTraceAuto);
+    if (isTraceAuto) {
+      fetchTrace();
+      var iv = parseInt(document.getElementById('trace-interval').value, 10);
+      traceAutoTimer = setInterval(fetchTrace, iv);
+    } else {
+      clearInterval(traceAutoTimer);
+      traceAutoTimer = null;
+    }
+  });
+  document.getElementById('trace-interval').addEventListener('change', function() {
+    if (isTraceAuto) {
+      clearInterval(traceAutoTimer);
+      var iv = parseInt(document.getElementById('trace-interval').value, 10);
+      traceAutoTimer = setInterval(fetchTrace, iv);
+    }
+  });
+
+  // Trace loan filter
+  document.getElementById('trace-loan').addEventListener('input', function() {
+    renderTrace(allTraceRecords);
+  });
+
+  // Bulk delete buttons
+  document.getElementById('delete-range-btn').addEventListener('click', deleteRange);
+  initDeadLetter();
+  document.getElementById('delete-selected-btn').addEventListener('click', deleteSelected);
+
+  // Checkbox delegation — handles dynamically rendered checkboxes
+  document.getElementById('trace-container').addEventListener('change', function(e) {
+    if (e.target.id === 'select-all-cb') {
+      toggleSelectAll(e.target);
+    } else if (e.target.classList.contains('trace-select-cb')) {
+      updateSelectedCount();
+    }
+  });
+});
+
+</script>
+</body>
+</html>

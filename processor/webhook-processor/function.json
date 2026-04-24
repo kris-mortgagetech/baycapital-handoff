@@ -1,0 +1,11 @@
+{
+  "bindings": [
+    {
+      "name": "queueMessage",
+      "type": "queueTrigger",
+      "direction": "in",
+      "queueName": "elliemae-webhooks",
+      "connection": "AZURE_STORAGE_CONNECTION_STRING"
+    }
+  ]
+}
