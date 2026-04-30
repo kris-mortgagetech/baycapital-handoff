@@ -1155,8 +1155,7 @@
       const { token } = await res.json();
       setToken(token);
       hideAuthModal();
-      // Reload so the page initializes with the token in place
-      window.location.reload();
+      setStatus('success', 'Authenticated');
     } catch (e) {
       err.textContent = 'Network error: ' + e.message;
     }
@@ -1223,8 +1222,14 @@ async function fetchMessages() {
     const res = await apiFetch(`/api/queue-messages?${params}`);
 
     if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`HTTP ${res.status}: ${errText}`);
+      let detail = '';
+      try {
+        const data = await res.json();
+        detail = data.error || data.detail || JSON.stringify(data);
+      } catch {
+        detail = await res.text();
+      }
+      throw new Error(`HTTP ${res.status}: ${detail || 'Unknown server error'}`);
     }
 
     const data = await res.json();
