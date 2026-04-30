@@ -902,7 +902,7 @@
     <h2>🔒 Webhook Monitor</h2>
     <input type="password" id="auth-password" placeholder="Enter password" autocomplete="current-password" />
     <div id="auth-error"></div>
-    <button onclick="submitPassword()">Sign In</button>
+    <button id="auth-submit-btn">Sign In</button>
   </div>
 </div>
 
@@ -1117,7 +1117,7 @@
     if (res.status === 401) {
       clearToken();
       showAuthModal();
-      throw new Error('Session expired — please sign in again');
+      throw new Error('Session expired - please sign in again');
     }
     return res;
   }
@@ -1128,13 +1128,13 @@
     err.textContent = '';
     if (!pw) { err.textContent = 'Please enter a password'; return; }
     try {
-      const res = await apiFetch('/api/auth', {
+      const res = await fetch('/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: pw }),
       });
       if (res.status === 401) { err.textContent = 'Incorrect password'; return; }
-      if (res.status === 404) { err.textContent = 'Auth endpoint not found — check deployment'; return; }
+      if (res.status === 404) { err.textContent = 'Auth endpoint not found - check deployment'; return; }
       if (res.status === 503) { err.textContent = 'MONITOR_PASSWORD not configured on server'; return; }
       if (!res.ok) {
         let msg = 'Server error';
@@ -1148,7 +1148,7 @@
       // Reload so the page initializes with the token in place
       window.location.reload();
     } catch (e) {
-      err.textContent = 'Network error — ' + e.message;
+      err.textContent = 'Network error: ' + e.message;
     }
   }
 
@@ -1162,10 +1162,11 @@
     document.getElementById('auth-modal').classList.remove('visible');
   }
 
-  // Allow Enter key in password field
+  // Allow Enter key in password field and button click
   document.getElementById('auth-password').addEventListener('keydown', e => {
     if (e.key === 'Enter') submitPassword();
   });
+  document.getElementById('auth-submit-btn').addEventListener('click', submitPassword);
 
   // On load — if token exists skip login, else show modal
   if (getToken()) {
