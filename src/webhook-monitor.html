@@ -1134,11 +1134,19 @@
         body: JSON.stringify({ password: pw }),
       });
       if (res.status === 401) { err.textContent = 'Incorrect password'; return; }
-      if (!res.ok) { err.textContent = 'Server error — try again'; return; }
+      if (res.status === 404) { err.textContent = 'Auth endpoint not found — check deployment'; return; }
+      if (res.status === 503) { err.textContent = 'MONITOR_PASSWORD not configured on server'; return; }
+      if (!res.ok) {
+        let msg = 'Server error';
+        try { const d = await res.json(); msg = d.error || msg; } catch {}
+        err.textContent = msg + ' (' + res.status + ')';
+        return;
+      }
       const { token } = await res.json();
       setToken(token);
       hideAuthModal();
-      initMonitor();
+      // Reload so the page initializes with the token in place
+      window.location.reload();
     } catch (e) {
       err.textContent = 'Network error — ' + e.message;
     }
@@ -2147,7 +2155,7 @@ document.addEventListener('DOMContentLoaded', function() {
       updateSelectedCount();
     }
   });
-});
+}
 
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
