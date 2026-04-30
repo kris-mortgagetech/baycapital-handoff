@@ -28,7 +28,7 @@ jobs:
       - name: Set SWA app settings
         run: |
           az staticwebapp appsettings set \
-            --name agreeable-smoke-05f35950f \
+            --name web-hook-monitor \
             --resource-group rg-bcm-crm \
             --setting-names \
               AZURE_STORAGE_CONNECTION_STRING="${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}" \
