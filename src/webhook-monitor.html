@@ -923,9 +923,9 @@
 
 <!-- ── Tabs ── -->
 <div class="tabs">
-  <button class="tab-btn active" data-tab="queue">Queue</button>
-  <button class="tab-btn" data-tab="trace">Trace Log</button>
-    <button class="tab-btn" data-tab="deadletter">Dead Letter</button>
+  <button type="button" class="tab-btn active" data-tab="queue">Queue</button>
+  <button type="button" class="tab-btn" data-tab="trace">Trace Log</button>
+    <button type="button" class="tab-btn" data-tab="deadletter">Dead Letter</button>
 </div>
 
 <!-- ── Queue tab ── -->
@@ -1125,8 +1125,9 @@
     options.headers = { ...(options.headers || {}), ...authHeaders() };
     const res = await fetch(url, options);
     if (res.status === 401) {
-      clearToken();
-      showAuthModal();
+      // Keep session token sticky for this browser session.
+      // Only prompt if no token exists (fresh/cleared session).
+      if (!getToken()) showAuthModal();
       throw new Error('Session expired - please sign in again');
     }
     return res;
@@ -1484,6 +1485,22 @@ function syntaxHighlight(json) {
 
 // ── Tab switching ──────────────────────────────────────────────────────────
 function switchTab(tabName) {
+  // Stop background polling when moving across tabs so hidden tabs
+  // do not trigger auth prompts or extra API traffic.
+  stopAutoRefresh();
+  if (isTraceAuto) {
+    clearInterval(traceAutoTimer);
+    traceAutoTimer = null;
+    isTraceAuto = false;
+    document.getElementById('trace-toggle-sw').classList.remove('on');
+  }
+  if (dlAutoEnabled) {
+    clearInterval(dlAutoTimer);
+    dlAutoTimer = null;
+    dlAutoEnabled = false;
+    document.getElementById('dl-toggle-sw').classList.remove('on');
+  }
+
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + tabName).classList.add('active');
@@ -2165,36 +2182,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
-
-
-// ── Auth ──────────────────────────────────────────────────────────────────────
-async function loadAuthUser() {
-  try {
-    const res = await fetch('/.auth/me');
-    if (!res.ok) throw new Error('Not authenticated');
-    const data = await res.json();
-    const principal = data.clientPrincipal;
-    if (!principal) {
-      document.getElementById('auth-user').textContent = 'Not signed in';
-      return;
-    }
-    document.getElementById('auth-user').textContent = principal.userDetails || principal.userId;
-    const roles = (principal.userRoles || []).filter(r => !['anonymous','authenticated'].includes(r));
-    if (roles.length) {
-      document.getElementById('auth-role').textContent = '(' + roles.join(', ') + ')';
-    }
-  } catch {
-    document.getElementById('auth-user').textContent = 'Unknown user';
-  }
-}
-
-function signOut() {
-  window.location.href = '/.auth/logout?post_logout_redirect_uri=/';
-}
-
-loadAuthUser();
-
-
 </script>
 </body>
 </html>
