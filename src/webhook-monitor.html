@@ -1101,9 +1101,19 @@
 <script>
 
   // ── Auth ─────────────────────────────────────────────────────────────────
-  function getToken() { return sessionStorage.getItem('monitor_token'); }
-  function setToken(t) { sessionStorage.setItem('monitor_token', t); }
-  function clearToken() { sessionStorage.removeItem('monitor_token'); }
+  const MONITOR_TOKEN_KEY = 'monitor_token';
+
+  function getToken() {
+    return sessionStorage.getItem(MONITOR_TOKEN_KEY);
+  }
+
+  function setToken(t) {
+    sessionStorage.setItem(MONITOR_TOKEN_KEY, t);
+  }
+
+  function clearToken() {
+    sessionStorage.removeItem(MONITOR_TOKEN_KEY);
+  }
 
   function authHeaders() {
     const t = getToken();
@@ -1478,8 +1488,6 @@ function switchTab(tabName) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + tabName).classList.add('active');
   document.querySelector('[data-tab="' + tabName + '"]').classList.add('active');
-  if (tabName === 'trace') fetchTrace();
-  if (tabName === 'deadletter') loadDeadLetters();
 }
 
 
