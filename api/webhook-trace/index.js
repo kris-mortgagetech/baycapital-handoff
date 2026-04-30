@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+const { requireAuth } = require("../authMiddleware");
 
 /**
  * GET  /api/webhook-trace
@@ -13,6 +14,8 @@ const crypto = require("crypto");
  *   { "date": "YYYY-MM-DD" }
  */
 module.exports = async function (context, req) {
+  if (!requireAuth(context, req)) return;
+
   const connStr = process.env.AZURE_STORAGE_CONNECTION_STRING;
   if (!connStr) {
     context.res = { status: 503, body: JSON.stringify({ error: "Storage not configured" }), headers: { "Content-Type": "application/json" } };

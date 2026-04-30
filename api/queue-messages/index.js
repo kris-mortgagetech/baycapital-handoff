@@ -11,6 +11,8 @@ const { QueueServiceClient } = require("@azure/storage-queue");
  *   visibilityTimeout  Seconds to hide message after dequeue (default 300)
  */
 module.exports = async function (context, req) {
+  if (!requireAuth(context, req)) return;
+
   const connStr = process.env.AZURE_STORAGE_CONNECTION_STRING;
   const queueName = process.env.WEBHOOK_QUEUE_NAME || "elliemae-webhooks";
 
