@@ -12,7 +12,7 @@ env:
   FUNCTION_APP_NAME: elliemae-webhook-processor
   RESOURCE_GROUP: rg-bcm-crm
   STORAGE_ACCOUNT: baycapitalqueue
-  LOCATION: westus
+  LOCATION: east2
   NODE_VERSION: '22'
 
 jobs:
