@@ -1125,9 +1125,8 @@
     options.headers = { ...(options.headers || {}), ...authHeaders() };
     const res = await fetch(url, options);
     if (res.status === 401) {
-      // Keep session token sticky for this browser session.
-      // Only prompt if no token exists (fresh/cleared session).
-      if (!getToken()) showAuthModal();
+      clearToken();
+      showAuthModal();
       throw new Error('Session expired - please sign in again');
     }
     return res;
