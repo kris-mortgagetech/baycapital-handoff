@@ -812,100 +812,9 @@
     font-size: 0.72rem;
   }
 
-
-  /* ── Auth bar ── */
-  .auth-bar {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 12px;
-    padding: 6px 24px;
-    background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--muted);
-  }
-  .auth-bar .auth-user { color: var(--accent2); }
-  .auth-bar .auth-role { color: var(--muted); }
-  .btn-signout {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    padding: 3px 10px;
-    border-radius: var(--radius);
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    cursor: pointer;
-  }
-  .btn-signout:hover { color: var(--danger); border-color: var(--danger); }
-  .sensitive-badge {
-    background: var(--danger);
-    color: #fff;
-    padding: 2px 8px;
-    border-radius: 3px;
-    font-size: 0.65rem;
-    font-weight: bold;
-    letter-spacing: 0.05em;
-  }
-
-
-  /* ── Auth modal ─────────────────────────────────────────────── */
-  #auth-modal {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-  }
-  #auth-modal.visible { display: flex; }
-  #auth-modal .modal-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 2rem;
-    width: 340px;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  #auth-modal h2 { margin: 0; font-size: 1.1rem; color: var(--text); }
-  #auth-modal input {
-    padding: 0.6rem 0.8rem;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: var(--bg);
-    color: var(--text);
-    font-size: 0.95rem;
-    width: 100%;
-    box-sizing: border-box;
-  }
-  #auth-modal button {
-    padding: 0.6rem;
-    border-radius: 6px;
-    border: none;
-    background: var(--accent);
-    color: #fff;
-    font-size: 0.95rem;
-    cursor: pointer;
-  }
-  #auth-modal button:hover { opacity: 0.85; }
-  #auth-error { color: #f87171; font-size: 0.85rem; min-height: 1rem; }
-
 </style>
 </head>
 <body>
-
-<div id="auth-modal" class="visible">
-  <div class="modal-box">
-    <h2>🔒 Webhook Monitor</h2>
-    <input type="password" id="auth-password" placeholder="Enter password" autocomplete="current-password" />
-    <div id="auth-error"></div>
-    <button id="auth-submit-btn">Sign In</button>
-  </div>
-</div>
-
 
 <header>
   <div class="logo">
@@ -923,9 +832,9 @@
 
 <!-- ── Tabs ── -->
 <div class="tabs">
-  <button type="button" class="tab-btn active" data-tab="queue">Queue</button>
-  <button type="button" class="tab-btn" data-tab="trace">Trace Log</button>
-    <button type="button" class="tab-btn" data-tab="deadletter">Dead Letter</button>
+  <button class="tab-btn active" data-tab="queue">Queue</button>
+  <button class="tab-btn" data-tab="trace">Trace Log</button>
+    <button class="tab-btn" data-tab="deadletter">Dead Letter</button>
 </div>
 
 <!-- ── Queue tab ── -->
@@ -1099,90 +1008,6 @@
 </footer>
 
 <script>
-
-  // ── Auth ─────────────────────────────────────────────────────────────────
-  const MONITOR_TOKEN_KEY = 'monitor_token';
-
-  function getToken() {
-    return sessionStorage.getItem(MONITOR_TOKEN_KEY);
-  }
-
-  function setToken(t) {
-    sessionStorage.setItem(MONITOR_TOKEN_KEY, t);
-  }
-
-  function clearToken() {
-    sessionStorage.removeItem(MONITOR_TOKEN_KEY);
-  }
-
-  function authHeaders() {
-    const t = getToken();
-    return t ? { 'Authorization': 'Bearer ' + t } : {};
-  }
-
-  // Wrapper around fetch that injects the auth token and handles 401
-  async function apiFetch(url, options = {}) {
-    options.headers = { ...(options.headers || {}), ...authHeaders() };
-    const res = await fetch(url, options);
-    if (res.status === 401) {
-      clearToken();
-      showAuthModal();
-      throw new Error('Session expired - please sign in again');
-    }
-    return res;
-  }
-
-  async function submitPassword() {
-    const pw  = document.getElementById('auth-password').value;
-    const err = document.getElementById('auth-error');
-    err.textContent = '';
-    if (!pw) { err.textContent = 'Please enter a password'; return; }
-    try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: pw }),
-      });
-      if (res.status === 401) { err.textContent = 'Incorrect password'; return; }
-      if (res.status === 404) { err.textContent = 'Auth endpoint not found - check deployment'; return; }
-      if (res.status === 503) { err.textContent = 'MONITOR_PASSWORD not configured on server'; return; }
-      if (!res.ok) {
-        let msg = 'Server error';
-        try { const d = await res.json(); msg = d.error || msg; } catch {}
-        err.textContent = msg + ' (' + res.status + ')';
-        return;
-      }
-      const { token } = await res.json();
-      setToken(token);
-      hideAuthModal();
-      setStatus('success', 'Authenticated');
-    } catch (e) {
-      err.textContent = 'Network error: ' + e.message;
-    }
-  }
-
-  function showAuthModal() {
-    document.getElementById('auth-modal').classList.add('visible');
-    document.getElementById('auth-password').value = '';
-    document.getElementById('auth-password').focus();
-  }
-
-  function hideAuthModal() {
-    document.getElementById('auth-modal').classList.remove('visible');
-  }
-
-  // Allow Enter key in password field and button click
-  document.getElementById('auth-password').addEventListener('keydown', e => {
-    if (e.key === 'Enter') submitPassword();
-  });
-  document.getElementById('auth-submit-btn').addEventListener('click', submitPassword);
-
-  // On load — if token exists skip login, else show modal
-  if (getToken()) {
-    hideAuthModal();
-    // initMonitor called after DOM ready
-  }
-
 // ── State ──────────────────────────────────────────────────────────────────
 let autoRefreshTimer = null;
 let isAutoRefresh = false;
@@ -1219,17 +1044,11 @@ async function fetchMessages() {
       visibilityTimeout: visibility,
     });
 
-    const res = await apiFetch(`/api/queue-messages?${params}`);
+    const res = await fetch(`/api/queue-messages?${params}`);
 
     if (!res.ok) {
-      let detail = '';
-      try {
-        const data = await res.json();
-        detail = data.error || data.detail || JSON.stringify(data);
-      } catch {
-        detail = await res.text();
-      }
-      throw new Error(`HTTP ${res.status}: ${detail || 'Unknown server error'}`);
+      const errText = await res.text();
+      throw new Error(`HTTP ${res.status}: ${errText}`);
     }
 
     const data = await res.json();
@@ -1390,7 +1209,7 @@ async function deleteMessage(event, messageId, encodedPopReceipt, idx) {
   setStatus('loading', `⏳ Deleting ${messageId}...`);
 
   try {
-    const res = await apiFetch(`/api/queue-messages/${messageId}?popReceipt=${encodedPopReceipt}`, {
+    const res = await fetch(`/api/queue-messages/${messageId}?popReceipt=${encodedPopReceipt}`, {
       method: 'DELETE',
     });
 
@@ -1489,26 +1308,12 @@ function syntaxHighlight(json) {
 
 // ── Tab switching ──────────────────────────────────────────────────────────
 function switchTab(tabName) {
-  // Stop background polling when moving across tabs so hidden tabs
-  // do not trigger auth prompts or extra API traffic.
-  stopAutoRefresh();
-  if (isTraceAuto) {
-    clearInterval(traceAutoTimer);
-    traceAutoTimer = null;
-    isTraceAuto = false;
-    document.getElementById('trace-toggle-sw').classList.remove('on');
-  }
-  if (dlAutoEnabled) {
-    clearInterval(dlAutoTimer);
-    dlAutoTimer = null;
-    dlAutoEnabled = false;
-    document.getElementById('dl-toggle-sw').classList.remove('on');
-  }
-
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + tabName).classList.add('active');
   document.querySelector('[data-tab="' + tabName + '"]').classList.add('active');
+  if (tabName === 'trace') fetchTrace();
+  if (tabName === 'deadletter') loadDeadLetters();
 }
 
 
@@ -1574,7 +1379,7 @@ async function loadDeadLetters() {
   setDlStatus('Loading...', 'var(--muted)');
 
   try {
-    const res = await apiFetch('/api/dead-letter');
+    const res = await fetch('/api/dead-letter');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
 
@@ -1684,7 +1489,7 @@ async function dlRequeue(i) {
   if (!m || !confirm('Requeue this message for reprocessing?')) return;
   setDlStatus('Requeueing...', 'var(--muted)');
   try {
-    const res = await apiFetch('/api/dead-letter', {
+    const res = await fetch('/api/dead-letter', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ messageId: m.messageId, popReceipt: m.popReceipt }),
     });
@@ -1705,7 +1510,7 @@ async function dlRequeuePatch(i) {
   if (!confirm('Requeue with patched payload?')) return;
   setDlStatus('Requeueing with patch...', 'var(--muted)');
   try {
-    const res = await apiFetch('/api/dead-letter', {
+    const res = await fetch('/api/dead-letter', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ messageId: m.messageId, popReceipt: m.popReceipt, patchedPayload }),
     });
@@ -1720,7 +1525,7 @@ async function dlDiscard(i) {
   if (!m || !confirm('Permanently discard this message?')) return;
   setDlStatus('Discarding...', 'var(--muted)');
   try {
-    const res = await apiFetch('/api/dead-letter/' + m.messageId + '?popReceipt=' + encodeURIComponent(m.popReceipt || ''), {
+    const res = await fetch('/api/dead-letter/' + m.messageId + '?popReceipt=' + encodeURIComponent(m.popReceipt || ''), {
       method: 'DELETE',
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -1739,7 +1544,7 @@ async function dlDiscardSelected() {
     const m = dlMessages[parseInt(cb.dataset.idx)];
     if (!m) continue;
     try {
-      const res = await apiFetch('/api/dead-letter/' + m.messageId + '?popReceipt=' + encodeURIComponent(m.popReceipt || ''), { method: 'DELETE' });
+      const res = await fetch('/api/dead-letter/' + m.messageId + '?popReceipt=' + encodeURIComponent(m.popReceipt || ''), { method: 'DELETE' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       done++;
     } catch { failed++; }
@@ -1758,7 +1563,7 @@ async function dlRequeueBulk() {
     const m = dlMessages[parseInt(cb.dataset.idx)];
     if (!m) continue;
     try {
-      const res = await apiFetch('/api/dead-letter', {
+      const res = await fetch('/api/dead-letter', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messageId: m.messageId, popReceipt: m.popReceipt }),
       });
@@ -1785,7 +1590,7 @@ async function fetchTrace() {
     const params = new URLSearchParams({ dateFrom, dateTo, top });
     if (outcome) params.set('outcome', outcome);
 
-    const res = await apiFetch('/api/webhook-trace?' + params);
+    const res = await fetch('/api/webhook-trace?' + params);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
 
@@ -1825,7 +1630,7 @@ async function deleteRange() {
     const body = { dateFrom, dateTo };
     if (loanGuid)  body.loanGuid      = loanGuid;
     if (milestone) body.milestoneName = milestone;
-    const res = await apiFetch('/api/webhook-trace', {
+    const res = await fetch('/api/webhook-trace', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -1856,7 +1661,7 @@ async function deleteSelected() {
   setDeleteStatus('Deleting ' + traceIds.length + ' records...');
 
   try {
-    const res = await apiFetch('/api/webhook-trace', {
+    const res = await fetch('/api/webhook-trace', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ traceIds }),
@@ -2016,7 +1821,7 @@ async function fetchLoanFields(idx, loanGuid) {
   content.innerHTML = '<div class="fields-loading"><div class="spinner"></div> Calling Encompass fieldReader...</div>';
 
   try {
-    const res = await apiFetch('/api/loan-fields?loanGuid=' + encodeURIComponent(loanGuid));
+    const res = await fetch('/api/loan-fields?loanGuid=' + encodeURIComponent(loanGuid));
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: 'HTTP ' + res.status }));
       throw new Error(err.error || 'HTTP ' + res.status);
@@ -2186,6 +1991,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
 </script>
 </body>
 </html>

@@ -1,6 +1,5 @@
 const { QueueServiceClient } = require("@azure/storage-queue");
 const crypto = require("crypto");
-const { requireAuth } = require("../authMiddleware");
 
 /**
  * GET  /api/dead-letter          — list messages in poison queue
@@ -19,8 +18,6 @@ const POISON_QUEUE = "elliemae-webhooks-poison";
 const MAIN_QUEUE   = "elliemae-webhooks";
 
 module.exports = async function (context, req) {
-  if (!requireAuth(context, req)) return;
-
   const connStr = process.env.AZURE_STORAGE_CONNECTION_STRING;
   if (!connStr) {
     context.res = { status: 503, body: JSON.stringify({ error: "Storage not configured" }), headers: { "Content-Type": "application/json" } };
@@ -73,16 +70,10 @@ module.exports = async function (context, req) {
         return;
       }
 
-      // Decode message — handle both single and double Base64 (legacy messages)
+      // Decode and optionally patch
       let envelope;
-      try {
-        let decoded = Buffer.from(target.messageText, "base64").toString("utf8");
-        // Handle legacy double-encoded messages
-        if (!decoded.trimStart().startsWith("{") && !decoded.trimStart().startsWith("[")) {
-          decoded = Buffer.from(decoded, "base64").toString("utf8");
-        }
-        envelope = JSON.parse(decoded);
-      } catch { envelope = target.messageText; }
+      try { envelope = JSON.parse(Buffer.from(target.messageText, "base64").toString("utf8")); }
+      catch { envelope = target.messageText; }
 
       if (patchedPayload && typeof envelope === "object") {
         Object.assign(envelope, patchedPayload);
@@ -92,8 +83,8 @@ module.exports = async function (context, req) {
         envelope._requeuedAt = new Date().toISOString();
       }
 
-      // Re-enqueue to main queue — send plain JSON, SDK handles Base64 encoding
-      const newMessage = JSON.stringify(envelope);
+      // Re-enqueue to main queue
+      const newMessage = Buffer.from(JSON.stringify(envelope)).toString("base64");
       await mainClient.createIfNotExists();
       await mainClient.sendMessage(newMessage);
 
@@ -132,14 +123,7 @@ module.exports = async function (context, req) {
 
     const messages = response.receivedMessageItems.map(m => {
       let envelope = null;
-      try {
-        let decoded = Buffer.from(m.messageText, "base64").toString("utf8");
-        // Handle legacy double-encoded messages
-        if (!decoded.trimStart().startsWith("{") && !decoded.trimStart().startsWith("[")) {
-          decoded = Buffer.from(decoded, "base64").toString("utf8");
-        }
-        envelope = JSON.parse(decoded);
-      } catch {}
+      try { envelope = JSON.parse(Buffer.from(m.messageText, "base64").toString("utf8")); } catch {}
       return {
         messageId:    m.messageId,
         popReceipt:   m.popReceipt,
