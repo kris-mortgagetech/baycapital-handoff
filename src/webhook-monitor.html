@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Webhook Monitor — Ellie Mae Queue</title>
+<title>Webhook Monitor  Ellie Mae Queue</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -35,7 +35,7 @@
     flex-direction: column;
   }
 
-  /* ── Header ── */
+  /*  Header  */
   header {
     display: flex;
     align-items: center;
@@ -98,7 +98,7 @@
     50% { opacity: 0.4; }
   }
 
-  /* ── Controls bar ── */
+  /*  Controls bar  */
   .controls {
     display: flex;
     align-items: center;
@@ -136,7 +136,7 @@
 
   .sep { width: 1px; height: 24px; background: var(--border); }
 
-  /* ── Buttons ── */
+  /*  Buttons  */
   .btn {
     display: inline-flex; align-items: center; gap: 7px;
     padding: 8px 16px;
@@ -184,7 +184,7 @@
 
   .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* ── Auto-refresh toggle ── */
+  /*  Auto-refresh toggle  */
   .refresh-toggle {
     display: flex; align-items: center; gap: 8px;
     font-family: var(--mono); font-size: 0.78rem; color: var(--muted);
@@ -213,7 +213,7 @@
 
   .toggle-switch.on .toggle-knob { transform: translateX(14px); }
 
-  /* ── Status bar ── */
+  /*  Status bar  */
   #status-bar {
     padding: 6px 32px;
     font-family: var(--mono);
@@ -231,14 +231,14 @@
   #status-bar.error   { color: var(--danger); }
   #status-bar.loading { color: var(--accent); }
 
-  /* ── Main content ── */
+  /*  Main content  */
   main {
     flex: 1;
     padding: 24px 32px;
     overflow: auto;
   }
 
-  /* ── Message grid ── */
+  /*  Message grid  */
   #messages-container {
     display: flex;
     flex-direction: column;
@@ -261,7 +261,7 @@
   .empty-state .icon { font-size: 2.5rem; opacity: 0.4; }
   .empty-state p { font-size: 0.85rem; }
 
-  /* ── Message card ── */
+  /*  Message card  */
   .message-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -302,7 +302,7 @@
     flex-shrink: 0;
   }
 
-  /* milestone badge colors — 5 supported milestones */
+  /* milestone badge colors  5 supported milestones */
   .badge-application-completed { background: rgba(0,194,255,0.12); color: var(--accent);  border: 1px solid rgba(0,194,255,0.25); }
   .badge-trid-sent              { background: rgba(255,181,71,0.12); color: var(--warn);   border: 1px solid rgba(255,181,71,0.25); }
   .badge-uw-submitted           { background: rgba(199,146,234,0.12); color: #c792ea;      border: 1px solid rgba(199,146,234,0.25); }
@@ -349,7 +349,7 @@
 
   .chevron.open { transform: rotate(90deg); }
 
-  /* ── Card body / payload viewer ── */
+  /*  Card body / payload viewer  */
   .card-body {
     display: none;
     padding: 16px;
@@ -405,7 +405,7 @@
   .json-bool  { color: #c792ea; }
   .json-null  { color: var(--muted); }
 
-  /* ── Footer ── */
+  /*  Footer  */
   footer {
     padding: 12px 32px;
     border-top: 1px solid var(--border);
@@ -417,7 +417,7 @@
     align-items: center;
   }
 
-  /* ── Spinner ── */
+  /*  Spinner  */
   .spinner {
     display: inline-block;
     width: 12px; height: 12px;
@@ -432,7 +432,7 @@
 
   .hidden { display: none !important; }
 
-  /* ── Dead Letter tab ── */
+  /*  Dead Letter tab  */
   .dl-card {
     background: var(--surface);
     border: 1px solid rgba(220,50,50,0.3);
@@ -470,7 +470,7 @@
   .dl-status { font-family: var(--mono); font-size: 0.75rem; margin-top: 8px; }
 
 
-  /* ── Loan fields panel ── */
+  /*  Loan fields panel  */
   .fields-panel {
     margin-top: 14px;
     border-top: 1px solid var(--border);
@@ -571,7 +571,7 @@
   .btn-fetch-fields:hover { background: rgba(0,194,255,0.08); border-color: var(--accent); }
   .btn-fetch-fields:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* ── LO panel ── */
+  /*  LO panel  */
   .lo-panel {
     margin-top: 14px;
     border: 1px solid rgba(0,194,255,0.2);
@@ -654,7 +654,7 @@
   }
 
 
-  /* ── Trace enhancements ── */
+  /*  Trace enhancements  */
   .trace-detail-row td {
     padding: 0;
     border-bottom: 1px solid var(--border);
@@ -703,7 +703,7 @@
   table.trace-table tr.active-row td { background: var(--surface2); }
 
 
-  /* ── Tabs ── */
+  /*  Tabs  */
   .tabs {
     display: flex;
     gap: 0;
@@ -734,7 +734,7 @@
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
-  /* ── Trace table ── */
+  /*  Trace table  */
   .trace-controls {
     display: flex; align-items: center; gap: 12px;
     padding: 14px 32px;
@@ -812,32 +812,74 @@
     font-size: 0.72rem;
   }
 
+
+  /*  Auth bar  */
+  .auth-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 6px 24px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .auth-bar .auth-user { color: var(--accent2); }
+  .auth-bar .auth-role { color: var(--muted); }
+  .btn-signout {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 3px 10px;
+    border-radius: var(--radius);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    cursor: pointer;
+  }
+  .btn-signout:hover { color: var(--danger); border-color: var(--danger); }
+  .sensitive-badge {
+    background: var(--danger);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+  }
+
 </style>
 </head>
 <body>
 
 <header>
   <div class="logo">
-    <div class="logo-icon">⚡</div>
+    <div class="logo-icon"></div>
     WEBHOOK MONITOR
   </div>
   <div class="header-meta">
     <div class="queue-depth">
       <div class="dot"></div>
-      Queue: <span id="queue-depth-val">—</span>
+      Queue: <span id="queue-depth-val"></span>
     </div>
     <span>elliemae-webhooks</span>
   </div>
 </header>
 
-<!-- ── Tabs ── -->
+<div class="auth-bar">
+  <span>Signed in as <span id="auth-user" class="auth-user">Checking...</span></span>
+  <span id="auth-role" class="auth-role"></span>
+  <button class="btn-signout" onclick="signOut()">Sign out</button>
+</div>
+<!--  Tabs  -->
 <div class="tabs">
   <button class="tab-btn active" data-tab="queue">Queue</button>
   <button class="tab-btn" data-tab="trace">Trace Log</button>
     <button class="tab-btn" data-tab="deadletter">Dead Letter</button>
 </div>
 
-<!-- ── Queue tab ── -->
+<!--  Queue tab  -->
 <div id="tab-queue" class="tab-panel active">
   <div class="controls">
     <div class="controls-left">
@@ -865,38 +907,37 @@
         <option value="30000">30s</option>
       </select>
       <button class="btn btn-primary" id="refresh-btn">
-        <span>↻</span> Refresh
+        <span></span> Refresh
       </button>
       <button class="btn btn-ghost" id="clear-btn">Clear</button>
     </div>
   </div>
 
-  <div id="status-bar">Ready — click Refresh or enable auto-refresh</div>
+  <div id="status-bar">Ready  click Refresh or enable auto-refresh</div>
 
   <main>
     <div id="messages-container">
       <div class="empty-state">
-        <div class="icon">📭</div>
+        <div class="icon"></div>
         <p>No messages loaded. Click <strong>Refresh</strong> to fetch from queue.</p>
       </div>
     </div>
   
-  </div><!-- end messages-container -->
 </main>
 </div><!-- end tab-queue -->
 
-<!-- ── Dead Letter tab ── -->
+<!--  Dead Letter tab  -->
 <div id="tab-deadletter" class="tab-panel">
 
   <!-- Controls row 1: filters + refresh -->
   <div class="trace-controls">
     <label>Loan GUID</label>
-    <input type="text" id="dl-filter-loan" placeholder="filter by loan…" style="width:260px;font-family:var(--mono);font-size:0.78rem">
+    <input type="text" id="dl-filter-loan" placeholder="filter by loan" style="width:260px;font-family:var(--mono);font-size:0.78rem">
     <div class="sep"></div>
     <label>Milestone</label>
-    <input type="text" id="dl-filter-milestone" placeholder="filter by milestone…" style="width:160px;font-family:var(--mono);font-size:0.78rem">
+    <input type="text" id="dl-filter-milestone" placeholder="filter by milestone" style="width:160px;font-family:var(--mono);font-size:0.78rem">
     <div class="sep"></div>
-    <button class="btn btn-primary" id="dl-load-btn"><span>↻</span> Refresh</button>
+    <button class="btn btn-primary" id="dl-load-btn"><span></span> Refresh</button>
     <div class="refresh-toggle" id="dl-auto-toggle" style="margin-left:4px">
       <div class="toggle-switch" id="dl-toggle-sw"><div class="toggle-knob"></div></div>
       Auto
@@ -911,8 +952,8 @@
   <!-- Controls row 2: bulk actions -->
   <div class="trace-controls" style="background:#0d1520;border-top:none;gap:10px">
     <label style="color:var(--danger)">Bulk:</label>
-    <button class="btn btn-danger" id="dl-discard-selected-btn" style="padding:7px 14px">🗑 Discard Selected</button>
-    <button class="btn btn-primary" id="dl-requeue-selected-btn" style="padding:7px 14px">↩ Requeue Selected</button>
+    <button class="btn btn-danger" id="dl-discard-selected-btn" style="padding:7px 14px"> Discard Selected</button>
+    <button class="btn btn-primary" id="dl-requeue-selected-btn" style="padding:7px 14px"> Requeue Selected</button>
     <span id="dl-selected-count" style="font-family:var(--mono);font-size:0.75rem;color:var(--muted)"></span>
     <span id="dl-status" style="font-family:var(--mono);font-size:0.75rem;color:var(--muted);margin-left:8px"></span>
   </div>
@@ -927,13 +968,13 @@
   <!-- Message list -->
   <div id="dl-container">
     <div class="empty-state">
-      <div class="icon">☠️</div>
+      <div class="icon">️</div>
       <p>Click <strong>Refresh</strong> to check the poison queue.</p>
     </div>
   </div>
 </div>
 
-<!-- ── Trace tab ── -->
+<!--  Trace tab  -->
 <div id="tab-trace" class="tab-panel">
 
   <!-- Controls row 1: Query filters -->
@@ -954,11 +995,11 @@
     </select>
     <div class="sep"></div>
     <label>Loan GUID</label>
-    <input type="text" id="trace-loan" placeholder="filter…" style="width:180px;font-family:var(--mono);font-size:0.8rem">
+    <input type="text" id="trace-loan" placeholder="filter" style="width:180px;font-family:var(--mono);font-size:0.8rem">
     <div class="sep"></div>
     <label>Top</label>
     <input type="number" id="trace-top" value="100" min="1" max="500" style="width:70px">
-    <button class="btn btn-primary" id="trace-load-btn"><span>↻</span> Load</button>
+    <button class="btn btn-primary" id="trace-load-btn"><span></span> Load</button>
     <div class="refresh-toggle" id="trace-auto-toggle" style="margin-left:4px">
       <div class="toggle-switch" id="trace-toggle-sw"><div class="toggle-knob"></div></div>
       Auto
@@ -975,8 +1016,8 @@
     <label style="color:var(--danger)">Bulk Delete:</label>
     <input type="text" id="delete-loan-guid" placeholder="Loan GUID (optional)" style="width:260px;font-family:var(--mono);font-size:0.78rem">
     <input type="text" id="delete-milestone" placeholder="Milestone (optional)" style="width:180px;font-family:var(--mono);font-size:0.78rem">
-    <button class="btn btn-danger" id="delete-range-btn" style="padding:7px 14px">🗑 Delete Date Range</button>
-    <button class="btn btn-danger" id="delete-selected-btn" style="padding:7px 14px">🗑 Delete Selected</button>
+    <button class="btn btn-danger" id="delete-range-btn" style="padding:7px 14px"> Delete Date Range</button>
+    <button class="btn btn-danger" id="delete-selected-btn" style="padding:7px 14px"> Delete Selected</button>
     <span id="selected-count" style="font-family:var(--mono);font-size:0.75rem;color:var(--muted)"></span>
     <span id="delete-status" style="font-family:var(--mono);font-size:0.75rem;color:var(--muted);margin-left:8px"></span>
   </div>
@@ -995,7 +1036,7 @@
   <div class="trace-table-wrap">
     <div id="trace-container">
       <div class="empty-state">
-        <div class="icon">🔍</div>
+        <div class="icon"></div>
         <p>Click <strong>Load</strong> to fetch trace records.</p>
       </div>
     </div>
@@ -1003,12 +1044,12 @@
 </div>
 
 <footer>
-  <span>Azure Storage Queue • Ellie Mae Webhook Monitor</span>
+  <span>Azure Storage Queue  Ellie Mae Webhook Monitor</span>
   <span id="last-fetched">Never fetched</span>
 </footer>
 
 <script>
-// ── State ──────────────────────────────────────────────────────────────────
+//  State 
 let autoRefreshTimer = null;
 let isAutoRefresh = false;
 let fetchedMessages = [];
@@ -1028,7 +1069,7 @@ function stopAutoRefresh() {
   autoRefreshTimer = null;
 }
 
-// ── Fetch messages ─────────────────────────────────────────────────────────
+//  Fetch messages 
 async function fetchMessages() {
   const mode       = document.getElementById('mode-select').value;
   const count      = document.getElementById('count-input').value;
@@ -1061,25 +1102,25 @@ async function fetchMessages() {
 
     const now = new Date().toLocaleTimeString();
     document.getElementById('last-fetched').textContent = `Last fetched: ${now}`;
-    setStatus('success', `✓ ${fetchedMessages.length} message(s) loaded (${mode} mode) — queue depth ≈ ${data.approximateCount ?? '?'}`);
+    setStatus('success', ` ${fetchedMessages.length} message(s) loaded (${mode} mode)  queue depth  ${data.approximateCount ?? '?'}`);
 
   } catch (err) {
-    setStatus('error', `✗ ${err.message}`);
+    setStatus('error', ` ${err.message}`);
     console.error(err);
   } finally {
     document.getElementById('refresh-btn').disabled = false;
   }
 }
 
-// ── Render message cards ───────────────────────────────────────────────────
+//  Render message cards 
 function renderMessages(messages, isDequeued) {
   const container = document.getElementById('messages-container');
 
   if (!messages.length) {
     container.innerHTML = `
       <div class="empty-state">
-        <div class="icon">✅</div>
-        <p>Queue is empty — no pending webhook events.</p>
+        <div class="icon"></div>
+        <p>Queue is empty  no pending webhook events.</p>
       </div>`;
     return;
   }
@@ -1090,31 +1131,31 @@ function renderMessages(messages, isDequeued) {
 function buildCard(msg, idx, isDequeued) {
   const body = msg.body || {};
   const milestoneName = body.milestoneName || "Unknown";
-  const loanGuid      = body.loanGuid  || '—';
-  const receivedAt    = body.receivedAt ? new Date(body.receivedAt).toLocaleString() : '—';
+  const loanGuid      = body.loanGuid  || '';
+  const receivedAt    = body.receivedAt ? new Date(body.receivedAt).toLocaleString() : '';
   const envelopeId    = body.id || msg.messageId;
-  const instanceId    = body.instanceId || '—';
+  const instanceId    = body.instanceId || '';
   const deqCount      = msg.dequeueCount || 0;
   const badgeClass    = getMilestoneBadgeClass(milestoneName);
 
-  // Pull fields from envelope (Shape B/C) — these are top-level envelope properties
+  // Pull fields from envelope (Shape B/C)  these are top-level envelope properties
   const userId      = body.userId
                    || body.payload?.meta?.userId
-                   || '—';
+                   || '';
   const eventTime   = body.eventTime
                    ? new Date(body.eventTime).toLocaleString()
-                   : (body.payload?.eventTime ? new Date(body.payload.eventTime).toLocaleString() : '—');
+                   : (body.payload?.eventTime ? new Date(body.payload.eventTime).toLocaleString() : '');
   const milestoneId = body.milestoneId
                    || body.payload?.meta?.payload?.event?.finishMilestones?.[0]?.id
-                   || '—';
+                   || '';
 
   const canDelete = isDequeued && msg.popReceipt;
   const deleteBtn = canDelete
-    ? `<button class="btn btn-danger" onclick="deleteMessage(event,'${msg.messageId}','${encodeURIComponent(msg.popReceipt)}',${idx})">🗑 Delete</button>`
-    : `<button class="btn btn-danger" title="Dequeue mode required to delete" disabled>🗑 Delete</button>`;
+    ? `<button class="btn btn-danger" onclick="deleteMessage(event,'${msg.messageId}','${encodeURIComponent(msg.popReceipt)}',${idx})"> Delete</button>`
+    : `<button class="btn btn-danger" title="Dequeue mode required to delete" disabled> Delete</button>`;
 
   const keepBtn = canDelete
-    ? `<button class="btn btn-keep" onclick="keepMessage(event,${idx})">↩ Keep</button>`
+    ? `<button class="btn btn-keep" onclick="keepMessage(event,${idx})"> Keep</button>`
     : '';
 
   return `
@@ -1125,13 +1166,13 @@ function buildCard(msg, idx, isDequeued) {
         <span>Loan: <span class="val">${truncate(loanGuid, 36)}</span></span>
         <span>Event time: <span class="val">${eventTime}</span></span>
         <span>User: <span class="val">${userId}</span></span>
-        ${deqCount > 1 ? `<span class="dequeue-count">dequeued ×${deqCount}</span>` : ''}
+        ${deqCount > 1 ? `<span class="dequeue-count">dequeued ${deqCount}</span>` : ''}
       </div>
       <div class="card-actions" onclick="event.stopPropagation()">
         ${deleteBtn}
         ${keepBtn}
       </div>
-      <span class="chevron" id="chev-${idx}">▶</span>
+      <span class="chevron" id="chev-${idx}"></span>
     </div>
     <div class="card-body" id="body-${idx}">
       <div class="payload-section">
@@ -1173,18 +1214,18 @@ function buildCard(msg, idx, isDequeued) {
         </div>
         <div class="field-group">
           <span class="field-label">Pop Receipt</span>
-          <span class="field-value" style="color:var(--muted);font-size:0.7rem">${msg.popReceipt ? '✓ present' : '✗ peek only'}</span>
+          <span class="field-value" style="color:var(--muted);font-size:0.7rem">${msg.popReceipt ? ' present' : ' peek only'}</span>
         </div>
       </div>
       <div class="field-label" style="margin-bottom:8px">Raw Payload (events[])</div>
       <div class="json-block">${syntaxHighlight(body.payload?.events || body.payload || body)}</div>
 
-      ${loanGuid && loanGuid !== '—' ? `
+      ${loanGuid && loanGuid !== '' ? `
       <div class="fields-panel" id="fields-panel-${idx}">
         <div class="fields-panel-header">
           <span class="field-label">Encompass Loan Fields</span>
           <button class="btn-fetch-fields" id="fetch-btn-${idx}" onclick="fetchLoanFields(${idx}, '${loanGuid}')">
-            ⬇ Fetch Fields
+             Fetch Fields
           </button>
         </div>
         <div id="fields-content-${idx}"></div>
@@ -1193,7 +1234,7 @@ function buildCard(msg, idx, isDequeued) {
   </div>`;
 }
 
-// ── Expand / collapse card ─────────────────────────────────────────────────
+//  Expand / collapse card 
 function toggleCard(idx) {
   const bodyEl = document.getElementById(`body-${idx}`);
   const chevEl = document.getElementById(`chev-${idx}`);
@@ -1201,7 +1242,7 @@ function toggleCard(idx) {
   chevEl.classList.toggle('open');
 }
 
-// ── Delete message ─────────────────────────────────────────────────────────
+//  Delete message 
 async function deleteMessage(event, messageId, encodedPopReceipt, idx) {
   event.stopPropagation();
   if (!confirm('Delete this message from the queue?')) return;
@@ -1225,20 +1266,20 @@ async function deleteMessage(event, messageId, encodedPopReceipt, idx) {
     card.style.transform = 'translateX(16px)';
     setTimeout(() => {
       card.remove();
-      setStatus('success', `✓ Message ${messageId} deleted`);
+      setStatus('success', ` Message ${messageId} deleted`);
 
       if (!document.querySelector('.message-card')) {
         document.getElementById('messages-container').innerHTML = `
-          <div class="empty-state"><div class="icon">✅</div><p>All messages deleted.</p></div>`;
+          <div class="empty-state"><div class="icon"></div><p>All messages deleted.</p></div>`;
       }
     }, 250);
 
   } catch (err) {
-    setStatus('error', `✗ Delete failed: ${err.message}`);
+    setStatus('error', ` Delete failed: ${err.message}`);
   }
 }
 
-// ── Keep message (make visible again immediately) ──────────────────────────
+//  Keep message (make visible again immediately) 
 async function keepMessage(event, idx) {
   event.stopPropagation();
   // The message will auto-become visible again when the visibility timeout expires.
@@ -1246,12 +1287,12 @@ async function keepMessage(event, idx) {
   // but that requires a separate endpoint. For now just mark in UI.
   const card = document.getElementById(`card-${idx}`);
   const btn = card.querySelector('.btn-keep');
-  btn.textContent = '✓ Will re-appear';
+  btn.textContent = ' Will re-appear';
   btn.disabled = true;
-  setStatus('success', `Message ${idx + 1} marked to keep — will reappear after visibility timeout expires`);
+  setStatus('success', `Message ${idx + 1} marked to keep  will reappear after visibility timeout expires`);
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+//  Helpers 
 function setStatus(type, msg) {
   const bar = document.getElementById('status-bar');
   bar.className = type;
@@ -1262,7 +1303,7 @@ function clearDisplay() {
   fetchedMessages = [];
   document.getElementById('messages-container').innerHTML = `
     <div class="empty-state">
-      <div class="icon">📭</div>
+      <div class="icon"></div>
       <p>Display cleared. Click <strong>Refresh</strong> to reload.</p>
     </div>`;
   setStatus('', 'Display cleared');
@@ -1289,7 +1330,7 @@ function getMilestoneBadgeClass(milestoneName) {
 }
 
 function truncate(str, len) {
-  if (!str) return '—';
+  if (!str) return '';
   return str.length > len ? str.slice(0, len) + '...' : str;
 }
 
@@ -1306,7 +1347,7 @@ function syntaxHighlight(json) {
     });
 }
 
-// ── Tab switching ──────────────────────────────────────────────────────────
+//  Tab switching 
 function switchTab(tabName) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1318,7 +1359,7 @@ function switchTab(tabName) {
 
 
 
-// ── Dead Letter tab ──────────────────────────────────────────────────────────
+//  Dead Letter tab 
 
 let dlMessages       = [];
 let dlAutoTimer      = null;
@@ -1403,8 +1444,8 @@ async function loadDeadLetters() {
 
     if (!filtered.length) {
       container.innerHTML = dlMessages.length
-        ? '<div class="empty-state"><div class="icon">🔍</div><p>No messages match the current filters.</p></div>'
-        : '<div class="empty-state"><div class="icon">✅</div><p>Poison queue is empty.</p></div>';
+        ? '<div class="empty-state"><div class="icon"></div><p>No messages match the current filters.</p></div>'
+        : '<div class="empty-state"><div class="icon"></div><p>Poison queue is empty.</p></div>';
       setDlStatus('', '');
       btn.disabled = false;
       return;
@@ -1412,21 +1453,21 @@ async function loadDeadLetters() {
 
     // Build table
     const rows = filtered.map((m, i) => {
-      const time      = m.insertedOn ? new Date(m.insertedOn).toLocaleString() : '—';
-      const milestone = m.milestoneName || '—';
-      const loan      = truncate(m.loanGuid || '—', 36);
+      const time      = m.insertedOn ? new Date(m.insertedOn).toLocaleString() : '';
+      const milestone = m.milestoneName || '';
+      const loan      = truncate(m.loanGuid || '', 36);
       return '<tr id="dl-row-' + i + '">' +
         '<td onclick="event.stopPropagation()" style="width:32px;text-align:center">' +
           '<input type="checkbox" class="dl-select-cb" data-idx="' + i + '">' +
         '</td>' +
         '<td style="white-space:nowrap;font-size:0.75rem;cursor:pointer" onclick="toggleDlDetail(' + i + ')">' + time + '</td>' +
-        '<td><span class="dl-dequeue-badge">×' + (m.dequeueCount || 5) + '</span></td>' +
+        '<td><span class="dl-dequeue-badge">' + (m.dequeueCount || 5) + '</span></td>' +
         '<td style="font-family:var(--mono);font-size:0.82rem">' + milestone + '</td>' +
         '<td style="font-family:var(--mono);font-size:0.72rem;color:var(--muted)">' + loan + '</td>' +
         '<td style="white-space:nowrap">' +
-          '<button class="btn-dl-requeue" style="padding:4px 10px;font-size:0.72rem" onclick="dlRequeue(' + i + ')">↩ Requeue</button> ' +
-          '<button class="btn-dl-patch" style="padding:4px 10px;font-size:0.72rem" onclick="dlTogglePatch(' + i + ')">✏ Patch</button> ' +
-          '<button class="btn-dl-discard" style="padding:4px 10px;font-size:0.72rem" onclick="dlDiscard(' + i + ')">🗑</button>' +
+          '<button class="btn-dl-requeue" style="padding:4px 10px;font-size:0.72rem" onclick="dlRequeue(' + i + ')"> Requeue</button> ' +
+          '<button class="btn-dl-patch" style="padding:4px 10px;font-size:0.72rem" onclick="dlTogglePatch(' + i + ')"> Patch</button> ' +
+          '<button class="btn-dl-discard" style="padding:4px 10px;font-size:0.72rem" onclick="dlDiscard(' + i + ')"></button>' +
         '</td>' +
       '</tr>' +
       '<tr class="trace-detail-row" id="dl-detail-' + i + '" style="display:none">' +
@@ -1442,8 +1483,8 @@ async function loadDeadLetters() {
 
     setDlStatus('', '');
   } catch (err) {
-    container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Error: ' + err.message + '</p></div>';
-    setDlStatus('✗ ' + err.message, 'var(--danger)');
+    container.innerHTML = '<div class="empty-state"><div class="icon">️</div><p>Error: ' + err.message + '</p></div>';
+    setDlStatus(' ' + err.message, 'var(--danger)');
   } finally {
     btn.disabled = false;
   }
@@ -1452,10 +1493,10 @@ async function loadDeadLetters() {
 function buildDlDetail(m, i) {
   const envelope = m.envelope ? JSON.stringify(m.envelope, null, 2) : '{}';
   return '<div class="trace-detail-inner">' +
-    '<div class="field-group"><span class="field-label">Message ID</span><span class="field-value" style="font-size:0.8rem">' + (m.messageId || '—') + '</span></div>' +
-    '<div class="field-group"><span class="field-label">Loan GUID</span><span class="field-value" style="font-size:0.8rem">' + (m.loanGuid || '—') + '</span></div>' +
-    '<div class="field-group"><span class="field-label">Milestone</span><span class="field-value" style="font-size:0.8rem">' + (m.milestoneName || '—') + '</span></div>' +
-    '<div class="field-group"><span class="field-label">Inserted</span><span class="field-value" style="font-size:0.8rem">' + (m.insertedOn ? new Date(m.insertedOn).toLocaleString() : '—') + '</span></div>' +
+    '<div class="field-group"><span class="field-label">Message ID</span><span class="field-value" style="font-size:0.8rem">' + (m.messageId || '') + '</span></div>' +
+    '<div class="field-group"><span class="field-label">Loan GUID</span><span class="field-value" style="font-size:0.8rem">' + (m.loanGuid || '') + '</span></div>' +
+    '<div class="field-group"><span class="field-label">Milestone</span><span class="field-value" style="font-size:0.8rem">' + (m.milestoneName || '') + '</span></div>' +
+    '<div class="field-group"><span class="field-label">Inserted</span><span class="field-value" style="font-size:0.8rem">' + (m.insertedOn ? new Date(m.insertedOn).toLocaleString() : '') + '</span></div>' +
     '<div class="field-group"><span class="field-label">Failures</span><span class="field-value" style="font-size:0.8rem;color:var(--danger)">' + (m.dequeueCount || 5) + '</span></div>' +
     '<div class="trace-raw-section" style="margin-top:10px">' +
       '<div class="trace-raw-header"><span class="field-label">Envelope Payload</span></div>' +
@@ -1465,7 +1506,7 @@ function buildDlDetail(m, i) {
       '<div class="patch-hint">Edit JSON to fix bad data, then Requeue with Patch:</div>' +
       '<textarea id="dl-patch-text-' + i + '">' + envelope.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</textarea>' +
       '<div style="margin-top:6px">' +
-        '<button class="btn-dl-requeue" onclick="dlRequeuePatch(' + i + ')">↩ Requeue with Patch</button>' +
+        '<button class="btn-dl-requeue" onclick="dlRequeuePatch(' + i + ')"> Requeue with Patch</button>' +
       '</div>' +
     '</div>' +
   '</div>';
@@ -1494,10 +1535,10 @@ async function dlRequeue(i) {
       body: JSON.stringify({ messageId: m.messageId, popReceipt: m.popReceipt }),
     });
     if (!res.ok) throw new Error((await res.json()).error || 'HTTP ' + res.status);
-    setDlStatus('✓ Requeued', 'var(--accent2)');
+    setDlStatus(' Requeued', 'var(--accent2)');
     dlMessages.splice(i, 1);
     loadDeadLetters();
-  } catch (err) { setDlStatus('✗ ' + err.message, 'var(--danger)'); }
+  } catch (err) { setDlStatus(' ' + err.message, 'var(--danger)'); }
 }
 
 async function dlRequeuePatch(i) {
@@ -1506,7 +1547,7 @@ async function dlRequeuePatch(i) {
   const textarea = document.getElementById('dl-patch-text-' + i);
   let patchedPayload;
   try { patchedPayload = JSON.parse(textarea.value); }
-  catch { alert('Invalid JSON — fix before requeueing'); return; }
+  catch { alert('Invalid JSON  fix before requeueing'); return; }
   if (!confirm('Requeue with patched payload?')) return;
   setDlStatus('Requeueing with patch...', 'var(--muted)');
   try {
@@ -1515,9 +1556,9 @@ async function dlRequeuePatch(i) {
       body: JSON.stringify({ messageId: m.messageId, popReceipt: m.popReceipt, patchedPayload }),
     });
     if (!res.ok) throw new Error((await res.json()).error || 'HTTP ' + res.status);
-    setDlStatus('✓ Requeued with patch', 'var(--accent2)');
+    setDlStatus(' Requeued with patch', 'var(--accent2)');
     loadDeadLetters();
-  } catch (err) { setDlStatus('✗ ' + err.message, 'var(--danger)'); }
+  } catch (err) { setDlStatus(' ' + err.message, 'var(--danger)'); }
 }
 
 async function dlDiscard(i) {
@@ -1529,9 +1570,9 @@ async function dlDiscard(i) {
       method: 'DELETE',
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    setDlStatus('✓ Discarded', 'var(--muted)');
+    setDlStatus(' Discarded', 'var(--muted)');
     loadDeadLetters();
-  } catch (err) { setDlStatus('✗ ' + err.message, 'var(--danger)'); }
+  } catch (err) { setDlStatus(' ' + err.message, 'var(--danger)'); }
 }
 
 async function dlDiscardSelected() {
@@ -1549,7 +1590,7 @@ async function dlDiscardSelected() {
       done++;
     } catch { failed++; }
   }
-  setDlStatus('✓ Discarded ' + done + (failed ? ' | ✗ Failed ' + failed : ''), 'var(--accent2)');
+  setDlStatus(' Discarded ' + done + (failed ? ' |  Failed ' + failed : ''), 'var(--accent2)');
   loadDeadLetters();
 }
 
@@ -1571,12 +1612,12 @@ async function dlRequeueBulk() {
       done++;
     } catch { failed++; }
   }
-  setDlStatus('✓ Requeued ' + done + (failed ? ' | ✗ Failed ' + failed : ''), 'var(--accent2)');
+  setDlStatus(' Requeued ' + done + (failed ? ' |  Failed ' + failed : ''), 'var(--accent2)');
   loadDeadLetters();
 }
 
 
-// ── Fetch trace records ────────────────────────────────────────────────────
+//  Fetch trace records 
 async function fetchTrace() {
   const dateFrom = document.getElementById('trace-date-from').value;
   const dateTo   = document.getElementById('trace-date-to').value;
@@ -1598,20 +1639,20 @@ async function fetchTrace() {
     renderTrace(allTraceRecords);
     updateStats(allTraceRecords);
 
-    const rangeLabel = dateFrom === dateTo ? dateFrom : dateFrom + ' → ' + dateTo;
+    const rangeLabel = dateFrom === dateTo ? dateFrom : dateFrom + '  ' + dateTo;
     document.getElementById('trace-last-loaded').textContent =
-      'Loaded ' + data.count + ' of ' + (data.totalFound || data.count) + ' — ' + rangeLabel + ' — ' + new Date().toLocaleTimeString();
+      'Loaded ' + data.count + ' of ' + (data.totalFound || data.count) + '  ' + rangeLabel + '  ' + new Date().toLocaleTimeString();
     document.getElementById('trace-stats').style.display = 'flex';
 
   } catch (err) {
     document.getElementById('trace-container').innerHTML =
-      '<div class="empty-state"><div class="icon">⚠️</div><p>Error: ' + err.message + '</p></div>';
+      '<div class="empty-state"><div class="icon">️</div><p>Error: ' + err.message + '</p></div>';
   } finally {
     loadBtn.disabled = false;
   }
 }
 
-// ── Bulk delete — date range ──────────────────────────────────────────────────
+//  Bulk delete  date range 
 async function deleteRange() {
   const dateFrom    = document.getElementById('trace-date-from').value;
   const dateTo      = document.getElementById('trace-date-to').value;
@@ -1637,7 +1678,7 @@ async function deleteRange() {
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    setDeleteStatus('✓ Deleted ' + data.deleted + ' records');
+    setDeleteStatus(' Deleted ' + data.deleted + ' records');
     // Remove matching records from local view
     allTraceRecords = allTraceRecords.filter(r => {
       if (loanGuid  && r.loanGuid      !== loanGuid)  return true;
@@ -1647,11 +1688,11 @@ async function deleteRange() {
     renderTrace(allTraceRecords);
     updateStats(allTraceRecords);
   } catch (err) {
-    setDeleteStatus('✗ ' + err.message);
+    setDeleteStatus(' ' + err.message);
   }
 }
 
-// ── Bulk delete — selected rows ───────────────────────────────────────────────
+//  Bulk delete  selected rows 
 async function deleteSelected() {
   const checked = [...document.querySelectorAll('.trace-select-cb:checked')];
   if (!checked.length) { alert('Select at least one record'); return; }
@@ -1668,14 +1709,14 @@ async function deleteSelected() {
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    setDeleteStatus('✓ Deleted ' + data.deleted + ' records');
+    setDeleteStatus(' Deleted ' + data.deleted + ' records');
     // Remove deleted rows from local data and re-render
     allTraceRecords = allTraceRecords.filter(r => !traceIds.includes(r.traceId));
     renderTrace(allTraceRecords);
     updateStats(allTraceRecords);
     document.getElementById('selected-count').textContent = '';
   } catch (err) {
-    setDeleteStatus('✗ ' + err.message);
+    setDeleteStatus(' ' + err.message);
   }
 }
 
@@ -1688,7 +1729,7 @@ function updateSelectedCount() {
   document.getElementById('selected-count').textContent = n > 0 ? n + ' selected' : '';
 }
 
-// ── Update summary stats ───────────────────────────────────────────────────
+//  Update summary stats 
 function updateStats(records) {
   const counts = { queued: 0, skipped: 0, rejected: 0, error: 0 };
   records.forEach(r => { if (counts[r.outcome] !== undefined) counts[r.outcome]++; });
@@ -1699,7 +1740,7 @@ function updateStats(records) {
   document.getElementById('stat-error').textContent    = counts.error;
 }
 
-// ── Render trace table ─────────────────────────────────────────────────────
+//  Render trace table 
 function renderTrace(records) {
   const container  = document.getElementById('trace-container');
   const loanFilter = document.getElementById('trace-loan').value.trim().toLowerCase();
@@ -1711,16 +1752,16 @@ function renderTrace(records) {
 
   if (!filtered.length) {
     container.innerHTML = loanFilter
-      ? '<div class="empty-state"><div class="icon">🔍</div><p>No records match loan GUID "' + loanFilter + '".</p></div>'
-      : '<div class="empty-state"><div class="icon">🔍</div><p>No trace records found for this date/filter.</p></div>';
+      ? '<div class="empty-state"><div class="icon"></div><p>No records match loan GUID "' + loanFilter + '".</p></div>'
+      : '<div class="empty-state"><div class="icon"></div><p>No trace records found for this date/filter.</p></div>';
     return;
   }
 
   const rows = filtered.map((r, i) => {
     const outcomeClass = 'outcome-' + (r.outcome || 'unknown');
-    const time         = r.receivedAt ? new Date(r.receivedAt).toLocaleString() : '—';
+    const time         = r.receivedAt ? new Date(r.receivedAt).toLocaleString() : '';
     const milestone    = r.milestoneName || '<span style="color:var(--muted);font-style:italic">pending</span>';
-    const loan         = r.loanGuid || '—';
+    const loan         = r.loanGuid || '';
     const shape        = r.shape ? '<span class="shape-badge">' + r.shape + '</span>' : '<span class="shape-badge" style="color:var(--muted)">?</span>';
     const tid          = (r.traceId || '').replace(/'/g, '');
 
@@ -1729,12 +1770,12 @@ function renderTrace(records) {
         '<input type="checkbox" class="trace-select-cb" data-traceid="' + tid + '">' +
       '</td>' +
       '<td style="white-space:nowrap;font-size:0.75rem;cursor:pointer" onclick="toggleTraceDetail(' + i + ')">' + time + '</td>' +
-      '<td><span class="' + outcomeClass + '">' + (r.outcome || '—') + '</span></td>' +
+      '<td><span class="' + outcomeClass + '">' + (r.outcome || '') + '</span></td>' +
       '<td>' + shape + '</td>' +
       '<td>' + milestone + '</td>' +
       '<td style="font-family:var(--mono);font-size:0.72rem;color:var(--muted)">' + truncate(loan, 36) + '</td>' +
       '<td style="color:var(--muted);font-size:0.72rem">' + truncate(r.outcomeReason || '', 50) + '</td>' +
-      '<td style="color:var(--muted);font-size:0.7rem">' + (r.httpStatus || '—') + '</td>' +
+      '<td style="color:var(--muted);font-size:0.7rem">' + (r.httpStatus || '') + '</td>' +
       '</tr>' +
       '<tr class="trace-detail-row" id="trace-detail-' + i + '" style="display:none">' +
       '<td colspan="8">' + buildTraceDetail(r, i) + '</td>' +
@@ -1752,7 +1793,7 @@ function renderTrace(records) {
     '</table>';
 }
 
-// ── Build expanded detail panel for a trace row ────────────────────────────
+//  Build expanded detail panel for a trace row 
 function buildTraceDetail(r, i) {
   const rawPretty = (() => {
     try { return JSON.stringify(JSON.parse(r.rawPayload), null, 2); }
@@ -1760,16 +1801,16 @@ function buildTraceDetail(r, i) {
   })();
 
   return '<div class="trace-detail-inner">' +
-    field('Trace ID',      r.traceId     || '—') +
-    field('Event ID',      r.eventId     || '—') +
-    field('Loan GUID',     r.loanGuid    || '—') +
-    field('Instance ID',   r.instanceId  || '—') +
-    field('Shape',         r.shape       || '—') +
+    field('Trace ID',      r.traceId     || '') +
+    field('Event ID',      r.eventId     || '') +
+    field('Loan GUID',     r.loanGuid    || '') +
+    field('Instance ID',   r.instanceId  || '') +
+    field('Shape',         r.shape       || '') +
     field('Milestone',     r.milestoneName || '(not in payload)') +
-    field('Outcome',       r.outcome     || '—') +
-    field('HTTP Status',   r.httpStatus  || '—') +
-    field('Outcome Reason', r.outcomeReason || '—') +
-    field('Received At',   r.receivedAt ? new Date(r.receivedAt).toLocaleString() : '—') +
+    field('Outcome',       r.outcome     || '') +
+    field('HTTP Status',   r.httpStatus  || '') +
+    field('Outcome Reason', r.outcomeReason || '') +
+    field('Received At',   r.receivedAt ? new Date(r.receivedAt).toLocaleString() : '') +
     '<div class="trace-raw-section">' +
       '<div class="trace-raw-header">' +
         '<span class="field-label">Raw Payload</span>' +
@@ -1787,7 +1828,7 @@ function field(label, value) {
     '</div>';
 }
 
-// ── Toggle detail row ──────────────────────────────────────────────────────
+//  Toggle detail row 
 function toggleTraceDetail(idx) {
   const detail = document.getElementById('trace-detail-' + idx);
   const row    = document.getElementById('trace-row-' + idx);
@@ -1796,7 +1837,7 @@ function toggleTraceDetail(idx) {
   row.classList.toggle('active-row', !isOpen);
 }
 
-// ── Copy raw payload ───────────────────────────────────────────────────────
+//  Copy raw payload 
 async function copyRaw(event, idx) {
   event.stopPropagation();
   const el  = document.getElementById('raw-payload-' + idx);
@@ -1811,7 +1852,7 @@ async function copyRaw(event, idx) {
   }
 }
 
-// ── Fetch Encompass loan fields for a queue message ────────────────────────
+//  Fetch Encompass loan fields for a queue message 
 async function fetchLoanFields(idx, loanGuid) {
   const btn     = document.getElementById('fetch-btn-' + idx);
   const content = document.getElementById('fields-content-' + idx);
@@ -1832,17 +1873,17 @@ async function fetchLoanFields(idx, loanGuid) {
 
     if (!groups.length) {
       content.innerHTML = '<div class="fields-loading" style="color:var(--muted)">No field values returned</div>';
-      btn.textContent = '↻ Refresh Fields';
+      btn.textContent = ' Refresh Fields';
       btn.disabled = false;
       return;
     }
 
-    // Skip "Loan Officer" group — rendered separately in LO panel below
+    // Skip "Loan Officer" group  rendered separately in LO panel below
     const html = groups.filter(g => g.group !== 'Loan Officer').map(g => {
       const rows = g.fields.map(f =>
         '<div class="field-row">' +
           '<span class="field-row-label">' + f.description + '</span>' +
-          '<span class="field-row-value">' + (f.value ?? '—') + '</span>' +
+          '<span class="field-row-value">' + (f.value ?? '') + '</span>' +
           '<span class="field-row-id">Field ' + f.id + '</span>' +
         '</div>'
       ).join('');
@@ -1856,23 +1897,23 @@ async function fetchLoanFields(idx, loanGuid) {
     if (data.loUser) {
       loHtml = buildLoPanel(data.loUser);
     } else if (data.loError) {
-      loHtml = '<div class="lo-panel" style="margin-top:14px"><div class="lo-panel-header"><span class="lo-panel-title">Loan Officer</span><span style="color:var(--danger);font-family:var(--mono);font-size:0.75rem;margin-left:8px">✗ ' + data.loError + '</span></div></div>';
+      loHtml = '<div class="lo-panel" style="margin-top:14px"><div class="lo-panel-header"><span class="lo-panel-title">Loan Officer</span><span style="color:var(--danger);font-family:var(--mono);font-size:0.75rem;margin-left:8px"> ' + data.loError + '</span></div></div>';
     } else if (data.raw && data.raw["LOID"]) {
-      loHtml = '<div class="lo-panel" style="margin-top:14px"><div class="lo-panel-header"><span class="lo-panel-title">Loan Officer</span><span style="color:var(--muted);font-family:var(--mono);font-size:0.75rem;margin-left:8px">LOID: ' + data.raw["LOID"] + ' — fetch returned null</span></div></div>';
+      loHtml = '<div class="lo-panel" style="margin-top:14px"><div class="lo-panel-header"><span class="lo-panel-title">Loan Officer</span><span style="color:var(--muted);font-family:var(--mono);font-size:0.75rem;margin-left:8px">LOID: ' + data.raw["LOID"] + '  fetch returned null</span></div></div>';
     }
 
     content.innerHTML = '<div class="field-groups">' + html + '</div>' + loHtml;
-    btn.textContent = '↻ Refresh Fields';
+    btn.textContent = ' Refresh Fields';
     btn.disabled = false;
 
   } catch (err) {
-    content.innerHTML = '<div class="fields-loading" style="color:var(--danger)">✗ ' + err.message + '</div>';
-    btn.textContent = '↻ Retry';
+    content.innerHTML = '<div class="fields-loading" style="color:var(--danger)"> ' + err.message + '</div>';
+    btn.textContent = ' Retry';
     btn.disabled = false;
   }
 }
 
-// ── Build LO details panel ────────────────────────────────────────────────
+//  Build LO details panel 
 function buildLoPanel(lo) {
   const fields = [
     { label: 'Name',             value: lo.fullName },
@@ -1921,7 +1962,7 @@ function toggleSelectAll(cb) {
 }
 
 
-// ── DOM Ready — wire up all event listeners ──────────────────────────────────
+//  DOM Ready  wire up all event listeners 
 document.addEventListener('DOMContentLoaded', function() {
 
   // Set default trace date range to today
@@ -1982,7 +2023,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initDeadLetter();
   document.getElementById('delete-selected-btn').addEventListener('click', deleteSelected);
 
-  // Checkbox delegation — handles dynamically rendered checkboxes
+  // Checkbox delegation  handles dynamically rendered checkboxes
   document.getElementById('trace-container').addEventListener('change', function(e) {
     if (e.target.id === 'select-all-cb') {
       toggleSelectAll(e.target);
@@ -1992,6 +2033,36 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+
+//  Auth 
+async function loadAuthUser() {
+  try {
+    const res = await fetch('/.auth/me');
+    if (!res.ok) throw new Error('Not authenticated');
+    const data = await res.json();
+    const principal = data.clientPrincipal;
+    if (!principal) {
+      document.getElementById('auth-user').textContent = 'Not signed in';
+      return;
+    }
+    document.getElementById('auth-user').textContent = principal.userDetails || principal.userId;
+    const roles = (principal.userRoles || []).filter(r => !['anonymous','authenticated'].includes(r));
+    if (roles.length) {
+      document.getElementById('auth-role').textContent = '(' + roles.join(', ') + ')';
+    }
+  } catch {
+    document.getElementById('auth-user').textContent = 'Unknown user';
+  }
+}
+
+function signOut() {
+  window.location.href = '/.auth/logout?post_logout_redirect_uri=/';
+}
+
+loadAuthUser();
+
+
 </script>
 </body>
 </html>
+
