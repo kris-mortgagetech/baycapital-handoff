@@ -6,7 +6,7 @@
 
 const LOAN_FIELDS = [
   "4000","4002","1240","1490","1402",
-  "Log.MS.CurrentMilestone",
+  "Log.MS.LastCompleted",
   "3","URLA.X73","12","14","15",
   "Log.MS.Date.Docs Signing",
   "2","136","VASUMM.X23","1041","353","1729","761","1335",
@@ -25,7 +25,7 @@ const FIELD_DESCRIPTIONS = {
   "1240":                     "Borrower Email",
   "1490":                     "Borrower Phone (Cell)",
   "1402":                     "Borrower Birth Date",
-  "Log.MS.CurrentMilestone":  "Current Milestone",
+  "Log.MS.LastCompleted":  "Current Milestone",
   "3":                        "Interest Rate",
   "URLA.X73":                 "Property Address",
   "12":                       "Property State",
@@ -72,7 +72,7 @@ const FIELD_DESCRIPTIONS = {
 const FIELD_GROUPS = {
   "Borrower":       ["4000","4002","1240","1490","1402"],
   "Co-Borrower":    ["4004","4006","1268","1480"],
-  "Loan":           ["Log.MS.CurrentMilestone","2","3","1172","1401","19","4","LE1.X2","353","1335"],
+  "Loan":           ["Log.MS.LastCompleted","2","3","1172","1401","19","4","LE1.X2","353","1335"],
   "Property":       ["URLA.X73","14","12","15","356","136","1041","1729"],
   "Dates":          ["763","761","Log.MS.Date.Docs Signing"],
   "Credit":         ["VASUMM.X23","52"],

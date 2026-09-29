@@ -32,7 +32,7 @@ const crypto = require("crypto");
 const LOAN_FIELDS = [
   "364",  // Loan Number — used as loan_id in GHL
   "4000","4002","1240","1490","1402",
-  "Log.MS.CurrentMilestone",
+  "Log.MS.LastCompleted",
   "3","URLA.X73","12","14","15",
   "Log.MS.Date.Docs Signing",
   "2","136","VASUMM.X23","1041","353","1729","761","1335",
@@ -218,7 +218,7 @@ function buildLoanProperties(loanId, fields, milestoneName) {
 
   const p = {
     loan_id:                    str(loanId),
-    loan_status:                str(milestoneName || fields["Log.MS.CurrentMilestone"]),
+    loan_status:                str(milestoneName || fields["Log.MS.LastCompleted"]),
     borrower_first_name:        str(fields["4000"]),
     borrower_last_name:         str(fields["4002"]),
     borrower_name_email_address:str(fields["1240"]),
@@ -288,7 +288,7 @@ function buildLoanCustomFields(loanId, fields, milestoneName) {
 
   return [
     { key: "loan_id",                      field_value: str(loanId) },
-    { key: "loan_status",                  field_value: str(milestoneName || fields["Log.MS.CurrentMilestone"]) },
+    { key: "loan_status",                  field_value: str(milestoneName || fields["Log.MS.LastCompleted"]) },
     { key: "interest_rate",                field_value: num(fields["3"]) },
     { key: "property_address",             field_value: str(fields["URLA.X73"]) },
     { key: "property_state",               field_value: str(fields["12"]) },
