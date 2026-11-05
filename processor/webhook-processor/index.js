@@ -99,6 +99,13 @@ module.exports = async function (context, queueMessage) {
   const { loanGuid, milestoneName, id: envelopeId, eventId, instanceId } = envelope;
   context.log(`Milestone: "${milestoneName}" | Loan: ${loanGuid}`);
 
+  // Log the Encompass webhook event to Azure Logs (Application Insights).
+  // Summary line: shows whether the milestone was finished or only updated.
+  context.log(`[webhook-event] eventId=${eventId || ""} | eventTime=${envelope.eventTime || ""} | loan=${loanGuid} | finishMilestones=${envelope.finishMilestones || "(none)"} | updateMilestones=${envelope.updateMilestones || "(none)"} | userId=${envelope.userId || ""}`);
+  // Full original event exactly as Encompass sent it (truncated to stay under the trace size limit).
+  const rawEvent = JSON.stringify(envelope.payload ?? envelope);
+  context.log(`[webhook-event-raw] ${rawEvent.length > 30000 ? rawEvent.substring(0, 30000) + "...[truncated]" : rawEvent}`);
+
   // ── 2–3. Get token + fetch fields ─────────────────────────────────────────
   let token, fields;
   try {
