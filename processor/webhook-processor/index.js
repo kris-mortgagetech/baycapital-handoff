@@ -218,15 +218,17 @@ function buildLoanProperties(loanId, fields, milestoneName) {
 
   const p = {
     loan_id:                    str(loanId),
-    loan_status:                str(milestoneName || fields["Log.MS.LastCompleted"]),
+    // Always use the last completed milestone from Encompass. The webhook's milestone
+    // name can come from updateMilestones (an unfinished milestone that was edited).
+    loan_status:                str(fields["Log.MS.LastCompleted"]),
     borrower_first_name:        str(fields["4000"]),
     borrower_last_name:         str(fields["4002"]),
     borrower_name_email_address:str(fields["1240"]),
     borrower_phone_number:      str(fields["1490"]),
     interest_rate:              num(fields["3"]),
     property_address:           str(fields["URLA.X73"]),
-    property_state:             str(fields["12"]),  // 12 = State
-    property_city:              str(fields["14"]),  // 14 = City
+    property_state:             str(fields["14"]),  // 14 = State
+    property_city:              str(fields["12"]),  // 12 = City
     property_zip_code:          str(fields["15"]),
     loan_amount:                mon(fields["2"]),
     purchase_price:             mon(fields["136"]),
@@ -288,11 +290,11 @@ function buildLoanCustomFields(loanId, fields, milestoneName) {
 
   return [
     { key: "loan_id",                      field_value: str(loanId) },
-    { key: "loan_status",                  field_value: str(milestoneName || fields["Log.MS.LastCompleted"]) },
+    { key: "loan_status",                  field_value: str(fields["Log.MS.LastCompleted"]) }, // last completed milestone only
     { key: "interest_rate",                field_value: num(fields["3"]) },
     { key: "property_address",             field_value: str(fields["URLA.X73"]) },
-    { key: "property_state",               field_value: str(fields["12"]) },
-    { key: "property_city",                field_value: str(fields["14"]) },
+    { key: "property_state",               field_value: str(fields["14"]) }, // 14 = State
+    { key: "property_city",                field_value: str(fields["12"]) }, // 12 = City
     { key: "property_zip_code",            field_value: str(fields["15"]) },
     { key: "funded_date",                  field_value: date(fields["Log.MS.Date.Docs Signing"]) },
     { key: "loan_amount",                  field_value: mon(fields["2"]) },
